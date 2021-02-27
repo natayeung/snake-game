@@ -4,7 +4,6 @@ import javafx.geometry.Point2D;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.LinkedList;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -16,15 +15,13 @@ import static com.nata.games.snake.Direction.RIGHT;
 public class Snake {
 
     private Direction movingDirection;
-    private Point2D head;
-    private Deque<Point2D> body = new LinkedList<>();
+    private LinkedList<Point2D> body = new LinkedList<>();
 
     public Snake(Point2D head, Direction movingDirection) {
         checkNotNull(head);
         checkNotNull(movingDirection);
 
-        this.head = head;
-        this.body.offerFirst(head);
+        this.body.offer(head);
         this.movingDirection = movingDirection;
     }
 
@@ -36,7 +33,7 @@ public class Snake {
      * @return the head of this snake.
      */
     public Point2D getHead() {
-        return head;
+        return body.peek();
     }
 
     /**
@@ -62,8 +59,9 @@ public class Snake {
         checkNotNull(movingDirection);
 
         this.movingDirection = movingDirection;
-        head = head.add(movingDirection.vector());
+        Point2D head = getHead().add(movingDirection.vector());
         body.offerFirst(head);
+        body.pollLast();
     }
 
     /**
@@ -73,7 +71,14 @@ public class Snake {
     public boolean isCollidingWith(Food food) {
         checkNotNull(food);
 
-        return head.equals(food.getPosition());
+        return getHead().equals(food.getPosition());
+    }
+
+    /**
+     * @return true if the head of this snake is colliding with its own body; false otherwise.
+     */
+    public boolean isCollidingWithBody() {
+        return body.lastIndexOf(getHead()) != 0;
     }
 
     /**
@@ -86,5 +91,13 @@ public class Snake {
         Point2D tail = body.peekLast();
         Point2D newTail = tail.subtract(movingDirection.vector());
         body.offerLast(newTail);
+    }
+
+    @Override
+    public String toString() {
+        return "Snake{" +
+                "movingDirection=" + movingDirection +
+                ", body=" + body +
+                '}';
     }
 }

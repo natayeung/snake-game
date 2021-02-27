@@ -7,10 +7,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.nata.games.snake.Direction.RIGHT;
+import static com.nata.games.snake.Direction.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -55,33 +56,56 @@ public class SnakeTest {
         snake.move(direction);
 
         assertThat("Snake can move " + direction, snake.getHead(), is(expectedHead));
+        assertThat("Snake should move without growing", snake.getLength(), is(1));
     }
 
     @Test
-    public void canCollideWithFood() {
+    public void collidesWithFood() {
         Food food = new Food(startingHead);
 
         assertTrue("Snake is colliding with food", snake.isCollidingWith(food));
     }
 
     @Test
-    public void canGrowStartingWithHeadOnly() {
-        Point2D[] newBodyParts = new Point2D[]{startingHead, new Point2D(3, 6)};
+    public void doesNotCollideWithFood() {
+        Food food = new Food(startingHead.add(new Point2D(1, 0)));
 
-        snake.grow();
+        assertFalse("Snake is not colliding with food", snake.isCollidingWith(food));
+    }
 
-        assertThat(snake.getLength(), is(2));
-        assertThat(snake.getBody(), contains(newBodyParts));
+    @Test
+    public void collidesWithBody() {
+        growSnake(5);
+
+        snake.move(UP);
+        snake.move(LEFT);
+        snake.move(DOWN);
+
+        assertTrue("Snake is colliding with body", snake.isCollidingWithBody());
+    }
+
+    @Test
+    public void doesNotCollideWithBody() {
+        growSnake(5);
+
+        snake.move(RIGHT);
+
+        assertFalse("Snake is not colliding with body", snake.isCollidingWithBody());
     }
 
     @Test
     public void canGrow() {
-        Point2D[] newBodyParts = new Point2D[]{startingHead, new Point2D(3, 6), new Point2D(3, 5)};
+        Point2D[] newBodyParts = new Point2D[]{startingHead, new Point2D(3, 6), new Point2D(3, 5), new Point2D(3, 4)};
 
-        snake.grow();
-        snake.grow();
+        growSnake(3);
 
-        assertThat(snake.getLength(), is(3));
+        assertThat(snake.getLength(), is(4));
         assertThat(snake.getBody(), contains(newBodyParts));
+    }
+
+    private void growSnake(int n) {
+        for (int i = 0; i < n; i++) {
+            snake.grow();
+        }
     }
 }

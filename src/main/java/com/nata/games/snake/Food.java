@@ -20,4 +20,11 @@ public class Food {
     public Point2D getPosition() {
         return position;
     }
+
+    @Override
+    public String toString() {
+        return "Food{" +
+                "position=" + position +
+                '}';
+    }
 }
