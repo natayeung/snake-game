@@ -45,15 +45,16 @@ public class SnakeTest {
 
     @Test
     @Parameters({
-            "UP   |4|7",
-            "DOWN |2|7",
-            "LEFT |3|6",
-            "RIGHT|3|8",
+            "UP   |3|6",
+            "DOWN |3|8",
+            "LEFT |2|7",
+            "RIGHT|4|7",
     })
-    public void canMoveInDirection(Direction direction, int expectedHeadX, int expectedHeadY) {
+    public void canMoveInSpecifiedDirection(Direction direction, int expectedHeadX, int expectedHeadY) {
         Point2D expectedHead = new Point2D(expectedHeadX, expectedHeadY);
 
-        snake.move(direction);
+        snake.changeMovingDirection(direction);
+        snake.move();
 
         assertThat("Snake can move " + direction, snake.getHead(), is(expectedHead));
         assertThat("Snake should move without growing", snake.getLength(), is(1));
@@ -77,9 +78,12 @@ public class SnakeTest {
     public void collidesWithBody() {
         growSnake(5);
 
-        snake.move(UP);
-        snake.move(LEFT);
-        snake.move(DOWN);
+        snake.changeMovingDirection(UP);
+        snake.move();
+        snake.changeMovingDirection(LEFT);
+        snake.move();
+        snake.changeMovingDirection(DOWN);
+        snake.move();
 
         assertTrue("Snake is colliding with body", snake.isCollidingWithBody());
     }
@@ -88,19 +92,38 @@ public class SnakeTest {
     public void doesNotCollideWithBody() {
         growSnake(5);
 
-        snake.move(RIGHT);
+        snake.changeMovingDirection(UP);
+        snake.move();
 
         assertFalse("Snake is not colliding with body", snake.isCollidingWithBody());
     }
 
     @Test
+    @Parameters({
+            "3|8",
+            "4|7",
+    })
+    public void collidesWithEdgeOfBoard(int boundX, int boundY) {
+        assertTrue("Snake is colliding with edge of board", snake.isCollidingWithEdgeOfBoard(boundX, boundY));
+    }
+
+    @Test
+    @Parameters({
+            "4|8",
+            "9|9"
+    })
+    public void doesNotCollideWithEdgeOfBoard(int boundX, int boundY) {
+        assertFalse("Snake is not colliding with edge of board", snake.isCollidingWithEdgeOfBoard(boundX, boundY));
+    }
+
+    @Test
     public void canGrow() {
-        Point2D[] newBodyParts = new Point2D[]{startingHead, new Point2D(3, 6), new Point2D(3, 5), new Point2D(3, 4)};
+        Point2D[] expectedBodyParts = new Point2D[]{startingHead, new Point2D(2, 7), new Point2D(1, 7), new Point2D(0, 7)};
 
         growSnake(3);
 
         assertThat(snake.getLength(), is(4));
-        assertThat(snake.getBody(), contains(newBodyParts));
+        assertThat(snake.getBody(), contains(expectedBodyParts));
     }
 
     private void growSnake(int n) {

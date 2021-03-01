@@ -7,15 +7,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.nata.games.snake.Direction.RIGHT;
 
 /**
  * @author natayeung
  */
 public class Snake {
 
+    private final LinkedList<Point2D> body = new LinkedList<>();
     private Direction movingDirection;
-    private LinkedList<Point2D> body = new LinkedList<>();
 
     public Snake(Point2D head, Direction movingDirection) {
         checkNotNull(head);
@@ -23,10 +22,6 @@ public class Snake {
 
         this.body.offer(head);
         this.movingDirection = movingDirection;
-    }
-
-    public Snake(Point2D head) {
-        this(head, RIGHT);
     }
 
     /**
@@ -51,14 +46,18 @@ public class Snake {
     }
 
     /**
-     * Move this snake in given direction by 1 unit.
+     * Change the moving direction of this snake.
      *
      * @param movingDirection
      */
-    public void move(Direction movingDirection) {
-        checkNotNull(movingDirection);
+    public void changeMovingDirection(Direction movingDirection) {
+        this.movingDirection = checkNotNull(movingDirection);
+    }
 
-        this.movingDirection = movingDirection;
+    /**
+     * Move this snake in the direction it is moving by 1 unit.
+     */
+    public void move() {
         Point2D head = getHead().add(movingDirection.vector());
         body.offerFirst(head);
         body.pollLast();
@@ -66,7 +65,7 @@ public class Snake {
 
     /**
      * @param food
-     * @return true if this snake is colliding with given food; false otherwise.
+     * @return true if the head of this snake is colliding with given food; false otherwise.
      */
     public boolean isCollidingWith(Food food) {
         checkNotNull(food);
@@ -82,15 +81,29 @@ public class Snake {
     }
 
     /**
+     * @param boundX
+     * @param boundY
+     * @return true if the head of this snake is colliding with the edge of the game board; false otherwise.
+     */
+    public boolean isCollidingWithEdgeOfBoard(int boundX, int boundY) {
+        Point2D head = getHead();
+        return head.getX() < 0 || head.getX() >= boundX
+                || head.getY() < 0 || head.getY() >= boundY;
+    }
+
+    /**
      * Grow this snake by extending its tail by 1 unit in length.
      */
     public void grow() {
         if (body.isEmpty())
             return;
 
-        Point2D tail = body.peekLast();
-        Point2D newTail = tail.subtract(movingDirection.vector());
+        Point2D newTail = getTail().subtract(movingDirection.vector());
         body.offerLast(newTail);
+    }
+
+    private Point2D getTail() {
+        return body.peekLast();
     }
 
     @Override

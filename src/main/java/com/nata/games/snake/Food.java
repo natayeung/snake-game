@@ -21,10 +21,15 @@ public class Food {
         return position;
     }
 
+    public void setPosition(Point2D newPosition) {
+        this.position = newPosition;
+    }
+
     @Override
     public String toString() {
         return "Food{" +
                 "position=" + position +
                 '}';
     }
+
 }
