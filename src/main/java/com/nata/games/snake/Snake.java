@@ -68,7 +68,7 @@ public class Snake {
      * @return true if the head of this snake is colliding with given food; false otherwise.
      */
     public boolean isCollidingWith(Food food) {
-        checkNotNull(food);
+        checkNotNull(food, "food must be specified");
 
         return getHead().equals(food.getPosition());
     }
@@ -109,8 +109,8 @@ public class Snake {
     @Override
     public String toString() {
         return "Snake{" +
-                "movingDirection=" + movingDirection +
-                ", body=" + body +
+                "body=" + body +
+                ", movingDirection=" + movingDirection +
                 '}';
     }
 }
