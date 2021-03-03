@@ -35,12 +35,7 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
         this.randomFoodProducer = checkNotNull(randomFoodProducer);
         this.directionsByInputKey = inputKeyDirectionMapping;
 
-        this.snake = createSnake();
-        this.food = createFood();
-        this.score = 0;
-        this.gameStatus = IN_PROGRESS;
-
-        gameView.initGameBoard(createGameState());
+        setUpNewGame();
     }
 
     @Override
@@ -62,26 +57,40 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
         } else if (snake.isCollidingWith(food)) {
             snake.grow();
             score++;
-            food = createFood();
+            food = newFood();
         }
 
-        gameView.updateGameBoard(createGameState());
+        gameView.updateGameBoard(newGameState());
+    }
+
+    @Override
+    public void onGameRestart() {
+        setUpNewGame();
     }
 
     public void setSnake(Snake snake) {
         this.snake = snake;
     }
 
-    private Snake createSnake() {
+    private void setUpNewGame() {
+        snake = newSnake();
+        food = newFood();
+        score = 0;
+        gameStatus = IN_PROGRESS;
+
+        gameView.initGameBoard(newGameState());
+    }
+
+    private Snake newSnake() {
         Point2D head = new Point2D(TOTAL_TILES_X / 2, TOTAL_TILES_Y / 2);
         return new Snake(head, SNAKE_DEFAULT_MOVING_DIRECTION);
     }
 
-    private Food createFood() {
+    private Food newFood() {
         return randomFoodProducer.nextFoodExcludingPositions(snake.getBody());
     }
 
-    private GameState createGameState() {
+    private GameState newGameState() {
         return new GameState(snake.getBody(), food.getPosition(), gameStatus, score);
     }
 }

@@ -8,6 +8,8 @@ public interface SnakeGameUserInterface {
         void onMovingDirectionUpdate(KeyCode code);
 
         void onNextMove();
+
+        void onGameRestart();
     }
 
     interface View {

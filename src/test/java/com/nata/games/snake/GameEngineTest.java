@@ -6,13 +6,13 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.nata.games.snake.GameStatus.GAME_OVER;
@@ -20,6 +20,7 @@ import static com.nata.games.snake.GameStatus.IN_PROGRESS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -69,36 +70,52 @@ public class GameEngineTest {
     }
 
     @Test
-    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithBody() {
+    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithBodyOnNextMove() {
         doReturn(true).when(snakeSpy).isCollidingWithBody();
 
         gameEngine.onNextMove();
 
-        verifyGameViewNotifiedOfGameStatus(GAME_OVER);
+        verifyGameViewNotifiedOfGameOverStatus();
     }
 
     @Test
-    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithEdgeOfBoard() {
+    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithEdgeOfBoardOnNextMove() {
         doReturn(true).when(snakeSpy).isCollidingWithEdgeOfBoard(anyInt(), anyInt());
 
         gameEngine.onNextMove();
 
-        verifyGameViewNotifiedOfGameStatus(GAME_OVER);
+        verifyGameViewNotifiedOfGameOverStatus();
     }
 
     @Test
-    public void shouldNotifyViewOfNewGameStateWhenSnakeIsCollidingWithFood() {
+    public void shouldNotifyViewOfNewGameStateWhenSnakeIsCollidingWithFoodOnNextMove() {
         doReturn(true).when(snakeSpy).isCollidingWith(foodMock);
 
         gameEngine.onNextMove();
 
         verify(gameViewMock).updateGameBoard(gameStateCaptor.capture());
         GameState capturedGameState = gameStateCaptor.getValue();
-        Assertions.assertAll(
+        assertAll(
                 () -> assertThat("Game status remains as IN_PROGRESS", capturedGameState.getGameStatus(), is(IN_PROGRESS)),
                 () -> assertThat("Score is increased by 1", capturedGameState.getScore(), is(1)),
                 () -> assertThat("Snake has grown", capturedGameState.getSnake().size(), is(2)),
                 () -> assertThat("Food is in a different position", capturedGameState.getFood(), not(foodMock)));
+    }
+
+    @Test
+    public void shouldNotifyViewToResetGameBoardOnGameRestart() {
+        setUpGameStateWhereSnakeHasGrown();
+        setUpGameStateWhereStatusIsGameOver();
+
+        gameEngine.onGameRestart();
+
+        verify(gameViewMock, times(2)).initGameBoard(gameStateCaptor.capture());
+        List<GameState> capturedGameStates = gameStateCaptor.getAllValues();
+        GameState lastGameState = capturedGameStates.get(1);
+        assertAll(
+                () -> assertThat("Game status is reset to IN_PROGRESS", lastGameState.getGameStatus(), is(IN_PROGRESS)),
+                () -> assertThat("Score is reset to 0", lastGameState.getScore(), is(0)),
+                () -> assertThat("Snake is re-created", lastGameState.getSnake().size(), is(1)));
     }
 
     private Map<KeyCode, Direction> inputKeyDirectionMapping() {
@@ -106,9 +123,20 @@ public class GameEngineTest {
                 KeyCode.LEFT, Direction.LEFT, KeyCode.RIGHT, Direction.RIGHT);
     }
 
-    private void verifyGameViewNotifiedOfGameStatus(GameStatus status) {
+    private void verifyGameViewNotifiedOfGameOverStatus() {
         verify(gameViewMock).updateGameBoard(gameStateCaptor.capture());
         GameState capturedGameState = gameStateCaptor.getValue();
-        assertThat(capturedGameState.getGameStatus(), is(status));
+        assertThat(capturedGameState.getGameStatus(), is(GAME_OVER));
+    }
+
+    private void setUpGameStateWhereSnakeHasGrown() {
+        doReturn(true).when(snakeSpy).isCollidingWith(foodMock);
+        gameEngine.onNextMove();
+        assertThat(snakeSpy.getLength(), is(2));
+    }
+
+    private void setUpGameStateWhereStatusIsGameOver() {
+        doReturn(true).when(snakeSpy).isCollidingWithBody();
+        gameEngine.onNextMove();
     }
 }
