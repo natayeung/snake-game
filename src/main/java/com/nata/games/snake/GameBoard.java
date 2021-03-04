@@ -1,5 +1,8 @@
 package com.nata.games.snake;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -14,14 +17,12 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static com.nata.games.snake.GameParameters.*;
 import static com.nata.games.snake.GameParameters.DisplayText.*;
@@ -36,15 +37,18 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyEvent> {
 
     private final Stage stage;
-    private final Text scoreValue = new Text();
     private final Map<Point2D, Rectangle> tilesByCoordinates;
+    private final Duration snakeMovementInterval;
     private SnakeGameUserInterface.EventListener eventListener;
     private GameState gameState;
+    private Text scoreValue;
+    private Timeline snakeMovement;
 
     public GameBoard(Stage stage) {
         this.stage = stage;
-
         this.tilesByCoordinates = new HashMap<>(TOTAL_TILES_X * TOTAL_TILES_Y);
+        this.snakeMovementInterval = SNAKE_MOVE_INTERVAL;
+
         initializeUI();
     }
 
@@ -56,7 +60,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     @Override
     public void initGameBoard(GameState gameState) {
         updateGameBoard(gameState);
-        moveSnakePeriodically();
+        scheduleSnakeMoves();
     }
 
     @Override
@@ -119,6 +123,9 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
         Text scoreDisplayName = new Text(SCORE);
         scoreDisplayName.setFont(TEXT_FONT);
+
+        scoreValue = new Text();
+
         scorePane.getChildren().addAll(scoreDisplayName, scoreValue);
 
         return scorePane;
@@ -179,26 +186,19 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         scoreValue.setFont(TEXT_FONT);
     }
 
-    private void moveSnakePeriodically() {
-        ScheduledExecutorService scheduler = newScheduler();
-        scheduler.scheduleWithFixedDelay(() -> makeNextMoveIfNotAlreadyGameOver(scheduler),
-                0, SNAKE_MOVE_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
+    private void scheduleSnakeMoves() {
+        snakeMovement = new Timeline(new KeyFrame(snakeMovementInterval, e -> makeNextMoveIfGameStillInProgress()));
+        snakeMovement.setCycleCount(Animation.INDEFINITE);
+        snakeMovement.play();
     }
 
-    private ScheduledExecutorService newScheduler() {
-        return Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread thread = new Thread(r);
-            thread.setDaemon(true);
-            return thread;
-        });
-    }
-
-    private void makeNextMoveIfNotAlreadyGameOver(ScheduledExecutorService scheduler) {
+    private void makeNextMoveIfGameStillInProgress() {
         if (gameState == null || gameState.getGameStatus() == IN_PROGRESS) {
-            Platform.runLater(() -> eventListener.onNextMove());
+            eventListener.onNextMove();
         } else if (gameState.getGameStatus() == GAME_OVER) {
+            snakeMovement.stop();
+            // It needs passing to Platform#runLater or it will throw "java.lang.IllegalStateException: showAndWait is not allowed during animation or layout processing"
             Platform.runLater(this::showGameOverDialog);
-            scheduler.shutdown();
         }
     }
 }

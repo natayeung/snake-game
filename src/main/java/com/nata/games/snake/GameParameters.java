@@ -2,6 +2,7 @@ package com.nata.games.snake;
 
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 /**
  * @author natayeung
@@ -23,7 +24,7 @@ public class GameParameters {
     static final Color FOOD_COLOR = Color.rgb(255, 0, 0);
     static final Font TEXT_FONT = Font.font("Verdana", 16);
 
-    static final int SNAKE_MOVE_INTERVAL_MILLIS = 500;
+    static final Duration SNAKE_MOVE_INTERVAL = Duration.millis(500);
 
     static class DisplayText {
         static final String GAME_OVER_MESSAGE = "Game Over!";
