@@ -22,9 +22,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.nata.games.snake.GameParameters.*;
+import static com.nata.games.snake.GameParameters.DisplayText.*;
 import static com.nata.games.snake.GameStatus.GAME_OVER;
+import static com.nata.games.snake.GameStatus.IN_PROGRESS;
 import static javafx.geometry.Pos.TOP_RIGHT;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
@@ -65,9 +70,9 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
     @Override
     public void showGameOverDialog() {
-        ButtonType newGame = new ButtonType("New Game", ButtonBar.ButtonData.OK_DONE);
-        ButtonType exit = new ButtonType("Exit", ButtonBar.ButtonData.CANCEL_CLOSE);
-        Alert dialog = new Alert(Alert.AlertType.NONE, "Game Over", newGame, exit);
+        ButtonType newGame = new ButtonType(NEW_GAME, ButtonBar.ButtonData.OK_DONE);
+        ButtonType exit = new ButtonType(EXIT, ButtonBar.ButtonData.CANCEL_CLOSE);
+        Alert dialog = new Alert(Alert.AlertType.NONE, GAME_OVER_MESSAGE, newGame, exit);
 
         Optional<ButtonType> choice = dialog.showAndWait();
         if (choice.orElse(exit) == newGame) {
@@ -115,7 +120,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         scorePane.setLayoutX(BOARD_PADDING_PX);
         scorePane.setLayoutY(BOARD_PADDING_PX);
 
-        Text scoreDisplayName = new Text("Score: ");
+        Text scoreDisplayName = new Text(SCORE);
         scoreDisplayName.setFont(TEXT_FONT);
         scorePane.getChildren().addAll(scoreDisplayName, scoreValue);
 
@@ -174,25 +179,25 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private void moveSnakePeriodically() {
-        Thread taskThread = new Thread(() -> {
-            while (gameState == null || gameState.getGameStatus() != GAME_OVER) {
-                sleepFor(SNAKE_MOVE_INTERVAL_MILLIS);
-                Platform.runLater(() -> eventListener.onNextMove());
-            }
-
-            if (gameState.getGameStatus() == GAME_OVER) {
-                Platform.runLater(this::showGameOverDialog);
-            }
-        });
-
-        taskThread.start();
+        ScheduledExecutorService scheduler = newScheduler();
+        scheduler.scheduleWithFixedDelay(() -> makeNextMoveIfNotAlreadyGameOver(scheduler),
+                0, SNAKE_MOVE_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
     }
 
-    private void sleepFor(int intervalMillis) {
-        try {
-            Thread.sleep(intervalMillis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private ScheduledExecutorService newScheduler() {
+        return Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread thread = new Thread(r);
+            thread.setDaemon(true);
+            return thread;
+        });
+    }
+
+    private void makeNextMoveIfNotAlreadyGameOver(ScheduledExecutorService scheduler) {
+        if (gameState == null || gameState.getGameStatus() == IN_PROGRESS) {
+            Platform.runLater(() -> eventListener.onNextMove());
+        } else if (gameState.getGameStatus() == GAME_OVER) {
+            Platform.runLater(this::showGameOverDialog);
+            scheduler.shutdown();
         }
     }
 }
