@@ -10,10 +10,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -102,13 +99,13 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
     private Scene newSceneWith(Parent parent) {
         Scene scene = new Scene(parent, WINDOW_WIDTH, WINDOW_HEIGHT);
-        scene.setFill(WINDOW_BACKGROUND_COLOR);
         scene.setOnKeyPressed(this);
         return scene;
     }
 
     private Pane newBasePane() {
         VBox pane = new VBox();
+        pane.setBackground(newWindowBackground());
         pane.setPadding(new Insets(BOARD_PADDING_PX));
         return pane;
     }
@@ -125,6 +122,10 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         scorePane.getChildren().addAll(scoreDisplayName, scoreValue);
 
         return scorePane;
+    }
+
+    private Background newWindowBackground() {
+        return new Background((new BackgroundFill(WINDOW_BACKGROUND_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     private Pane newTilesGrid() {
