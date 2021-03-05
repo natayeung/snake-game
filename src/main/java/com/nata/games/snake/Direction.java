@@ -20,4 +20,11 @@ enum Direction {
     Point2D vector() {
         return vector;
     }
+
+    boolean isOppositeWith(Direction anotherDirection) {
+        if (anotherDirection == null)
+            return false;
+
+        return this.vector.add(anotherDirection.vector).equals(Point2D.ZERO);
+    }
 }

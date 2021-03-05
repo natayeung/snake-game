@@ -15,6 +15,7 @@ import org.mockito.Spy;
 import java.util.List;
 import java.util.Map;
 
+import static com.nata.games.snake.Direction.RIGHT;
 import static com.nata.games.snake.GameStatus.GAME_OVER;
 import static com.nata.games.snake.GameStatus.IN_PROGRESS;
 import static org.hamcrest.CoreMatchers.is;
@@ -32,6 +33,8 @@ import static org.mockito.MockitoAnnotations.openMocks;
 @RunWith(JUnitParamsRunner.class)
 public class GameEngineTest {
 
+    private final Direction initialMovingDirection = RIGHT;
+
     @Mock
     private SnakeGameUserInterface.View gameViewMock;
     @Mock
@@ -39,7 +42,7 @@ public class GameEngineTest {
     @Mock
     private Food foodMock;
     @Spy
-    private Snake snakeSpy = new Snake(Point2D.ZERO, Direction.RIGHT);
+    private Snake snakeSpy = new Snake(Point2D.ZERO, initialMovingDirection);
     @Captor
     private ArgumentCaptor<GameState> gameStateCaptor;
 
@@ -60,13 +63,19 @@ public class GameEngineTest {
     @Parameters({
             "UP   |UP",
             "DOWN |DOWN",
-            "LEFT |LEFT",
             "RIGHT|RIGHT"
     })
-    public void shouldChangeMovingDirectionOfSnake(KeyCode inputKey, Direction direction) {
+    public void shouldChangeMovingDirectionOnlyIfNotOppositeWithDirectionSnakeIsMovingIn(KeyCode inputKey, Direction direction) {
         gameEngine.onMovingDirectionUpdate(inputKey);
 
         verify(snakeSpy).changeMovingDirection(direction);
+    }
+
+    @Test
+    public void shouldNotChangeMovingDirectionIfOppositeWithDirectionSnakeIsMovingIn() {
+        gameEngine.onMovingDirectionUpdate(KeyCode.LEFT);
+
+        verify(snakeSpy, never()).changeMovingDirection(any(Direction.class));
     }
 
     @Test
@@ -120,7 +129,7 @@ public class GameEngineTest {
 
     private Map<KeyCode, Direction> inputKeyDirectionMapping() {
         return Map.of(KeyCode.UP, Direction.UP, KeyCode.DOWN, Direction.DOWN,
-                KeyCode.LEFT, Direction.LEFT, KeyCode.RIGHT, Direction.RIGHT);
+                KeyCode.LEFT, Direction.LEFT, KeyCode.RIGHT, RIGHT);
     }
 
     private void verifyGameViewNotifiedOfGameOverStatus() {

@@ -27,6 +27,7 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
     private int score;
     private GameStatus gameStatus;
     private boolean foodCaughtOnLastMove;
+    private Direction movingDirection;
 
     public GameEngine(SnakeGameUserInterface.View gameView, RandomFoodProducer randomFoodProducer,
                       Map<KeyCode, Direction> inputKeyDirectionMapping) {
@@ -44,9 +45,12 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
         if (!directionsByInputKey.containsKey(code))
             return;
 
-        Direction movingDirection = directionsByInputKey.get(code);
+        Direction attemptedDirection = directionsByInputKey.get(code);
 
-        snake.changeMovingDirection(movingDirection);
+        if (!attemptedDirection.isOppositeWith(movingDirection)) {
+            snake.changeMovingDirection(attemptedDirection);
+            movingDirection = attemptedDirection;
+        }
     }
 
     @Override
@@ -61,7 +65,7 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
             snake.grow();
             score++;
             foodCaughtOnLastMove = true;
-            food = newFood();
+            food = newFoodNotInCollisionWith(snake);
         }
 
         gameView.updateGameBoard(newGameState());
@@ -77,20 +81,21 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
     }
 
     private void setUpNewGame() {
-        snake = newSnake();
-        food = newFood();
+        movingDirection = SNAKE_DEFAULT_MOVING_DIRECTION;
+        snake = newSnake(movingDirection);
+        food = newFoodNotInCollisionWith(snake);
         score = 0;
         gameStatus = IN_PROGRESS;
 
         gameView.initGameBoard(newGameState());
     }
 
-    private Snake newSnake() {
+    private Snake newSnake(Direction movingDirection) {
         Point2D head = new Point2D(TOTAL_TILES_X / 2, TOTAL_TILES_Y / 2);
-        return new Snake(head, SNAKE_DEFAULT_MOVING_DIRECTION);
+        return new Snake(head, movingDirection);
     }
 
-    private Food newFood() {
+    private Food newFoodNotInCollisionWith(Snake snake) {
         return randomFoodProducer.nextFoodExcludingPositions(snake.getBody());
     }
 
