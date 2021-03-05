@@ -31,8 +31,6 @@ import static com.nata.games.snake.GameParameters.*;
 import static com.nata.games.snake.GameParameters.DisplayText.*;
 import static com.nata.games.snake.GameParameters.Resources.BITE_SOUND_CLIP;
 import static com.nata.games.snake.GameParameters.Resources.GAME_OVER_SOUND_CLIP;
-import static com.nata.games.snake.GameStatus.GAME_OVER;
-import static com.nata.games.snake.GameStatus.IN_PROGRESS;
 import static javafx.animation.Animation.INDEFINITE;
 import static javafx.geometry.Pos.TOP_RIGHT;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
@@ -48,7 +46,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     private final Stage stage;
     private final Map<Point2D, Rectangle> tilesByCoordinates;
     private final SnakeMovementManager snakeMovementManager = new SnakeMovementManager();
-    private SnakeGameUserInterface.EventListener eventListener;
+    private SnakeGameUserInterface.Presenter presenter;
     private GameState gameState;
     private Text scoreValue;
     private int lastScore = -1;
@@ -61,12 +59,12 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     @Override
-    public void setEventListener(SnakeGameUserInterface.EventListener eventListener) {
-        this.eventListener = eventListener;
+    public void setPresenter(SnakeGameUserInterface.Presenter presenter) {
+        this.presenter = presenter;
     }
 
     @Override
-    public void initGameBoard(GameState gameState) {
+    public void initializeGameBoard(GameState gameState) {
         logger.info("Initializing game board, {}", gameState);
 
         this.gameState = gameState;
@@ -88,13 +86,13 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     public void showGameOverDialog() {
         playSoundIfGameOver();
 
-        ButtonType newGame = new ButtonType(NEW_GAME, ButtonBar.ButtonData.OK_DONE);
-        ButtonType exit = new ButtonType(EXIT, ButtonBar.ButtonData.CANCEL_CLOSE);
-        Alert dialog = new Alert(Alert.AlertType.NONE, GAME_OVER_MESSAGE, newGame, exit);
+        var newGame = new ButtonType(NEW_GAME, ButtonBar.ButtonData.OK_DONE);
+        var exit = new ButtonType(EXIT, ButtonBar.ButtonData.CANCEL_CLOSE);
+        var dialog = new Alert(Alert.AlertType.NONE, GAME_OVER_MESSAGE, newGame, exit);
 
         Optional<ButtonType> choice = dialog.showAndWait();
         if (choice.orElse(exit) == newGame) {
-            eventListener.onGameRestart();
+            presenter.onGameRestart();
         } else {
             Platform.exit();
         }
@@ -103,7 +101,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     @Override
     public void handle(KeyEvent event) {
         if (event.getEventType() == KEY_PRESSED && event.getCode().isArrowKey()) {
-            eventListener.onMovingDirectionUpdate(event.getCode());
+            presenter.onMovingDirectionUpdate(event.getCode());
         }
         event.consume();
     }
@@ -119,26 +117,26 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private Scene newSceneWith(Parent parent) {
-        Scene scene = new Scene(parent, WINDOW_WIDTH, WINDOW_HEIGHT);
+        var scene = new Scene(parent, WINDOW_WIDTH, WINDOW_HEIGHT);
         scene.setOnKeyPressed(this);
         return scene;
     }
 
     private Pane newBasePane() {
-        VBox pane = new VBox();
+        var pane = new VBox();
         pane.setBackground(newWindowBackground());
         pane.setPadding(new Insets(BOARD_PADDING_PX));
         return pane;
     }
 
     private Pane newScorePane() {
-        HBox scorePane = new HBox();
+        var scorePane = new HBox();
         scorePane.setPrefHeight(SCORE_DISPLAY_HEIGHT);
         scorePane.setAlignment(TOP_RIGHT);
         scorePane.setLayoutX(BOARD_PADDING_PX);
         scorePane.setLayoutY(BOARD_PADDING_PX);
 
-        Text scoreDisplayName = new Text(SCORE);
+        var scoreDisplayName = new Text(SCORE);
         scoreDisplayName.setFont(TEXT_FONT);
 
         scoreValue = new Text();
@@ -153,13 +151,13 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private Pane newTilesGrid() {
-        GridPane tilesGrid = new GridPane();
+        var tilesGrid = new GridPane();
         tilesGrid.setLayoutX(BOARD_PADDING_PX);
         tilesGrid.setLayoutY(BOARD_PADDING_PX);
 
         for (int i = 0; i < TOTAL_TILES_X; i++) {
             for (int j = 0; j < TOTAL_TILES_Y; j++) {
-                Rectangle tile = newTile(i, j);
+                var tile = newTile(i, j);
                 tilesGrid.add(tile, i, j);
             }
         }
@@ -167,7 +165,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private Rectangle newTile(int x, int y) {
-        Rectangle tile = new Rectangle(x, y, TILE_SIZE_PX, TILE_SIZE_PX);
+        var tile = new Rectangle(x, y, TILE_SIZE_PX, TILE_SIZE_PX);
         tile.setFill(TILE_COLOR);
 
         tilesByCoordinates.put(new Point2D(x, y), tile);
@@ -208,8 +206,6 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
             scoreValue.setText(String.valueOf(score));
             scoreValue.setFont(TEXT_FONT);
             lastScore = score;
-
-            logger.info("Updated score to {}", score);
         }
     }
 
@@ -220,7 +216,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private void playSoundIfGameOver() {
-        if (gameState.getGameStatus() == GAME_OVER) {
+        if (gameState.isGameOver()) {
             playSound(GAME_OVER_SOUND_CLIP);
         }
     }
@@ -228,7 +224,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     private void playSound(String resourceName) {
         Optional<URL> resource = Optional.ofNullable(getClass().getResource(resourceName));
         if (resource.isPresent()) {
-            AudioClip sound = new AudioClip(resource.get().toString());
+            var sound = new AudioClip(resource.get().toString());
             sound.play();
         } else {
             logger.warn("Sound clip {} not found", resourceName);
@@ -236,9 +232,9 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private void makeNextMoveIfGameStillInProgress() {
-        if (gameState == null || gameState.getGameStatus() == IN_PROGRESS) {
-            eventListener.onNextMove();
-        } else if (gameState.getGameStatus() == GAME_OVER) {
+        if (gameState == null || !gameState.isGameOver()) {
+            presenter.onNextMove();
+        } else {
             snakeMovementManager.stopSnakeMovement();
             // It needs passing to Platform#runLater or it will throw "java.lang.IllegalStateException: showAndWait is not allowed during animation or layout processing"
             Platform.runLater(this::showGameOverDialog);

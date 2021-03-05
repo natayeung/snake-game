@@ -1,11 +1,11 @@
-package com.nata.games.snake;
+package com.nata.games.snake.model;
 
 import javafx.geometry.Point2D;
 
 /**
  * @author natayeung
  */
-enum Direction {
+public enum Direction {
     UP(new Point2D(0, -1)),
     DOWN(new Point2D(0, 1)),
     LEFT(new Point2D(-1, 0)),
@@ -17,11 +17,11 @@ enum Direction {
         this.vector = vector;
     }
 
-    Point2D vector() {
+    public Point2D vector() {
         return vector;
     }
 
-    boolean isOppositeWith(Direction anotherDirection) {
+    public boolean isOppositeWith(Direction anotherDirection) {
         if (anotherDirection == null)
             return false;
 

@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.nata.games.snake.model;
 
 import javafx.geometry.Point2D;
 
@@ -9,10 +9,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class Food {
 
-    private Point2D position;
+    private final Point2D position;
 
     public Food(Point2D position) {
-        checkNotNull(position);
+        checkNotNull(position, "Position must be specified");
 
         this.position = position;
     }
@@ -21,15 +21,10 @@ public class Food {
         return position;
     }
 
-    public void setPosition(Point2D newPosition) {
-        this.position = newPosition;
-    }
-
     @Override
     public String toString() {
         return "Food{" +
                 "position=" + position +
                 '}';
     }
-
 }

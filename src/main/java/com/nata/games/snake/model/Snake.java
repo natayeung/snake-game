@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.nata.games.snake.model;
 
 import javafx.geometry.Point2D;
 
@@ -17,8 +17,8 @@ public class Snake {
     private Direction movingDirection;
 
     public Snake(Point2D head, Direction movingDirection) {
-        checkNotNull(head);
-        checkNotNull(movingDirection);
+        checkNotNull(head, "Head must be specified");
+        checkNotNull(movingDirection, "Moving direction must be specified");
 
         this.body.offer(head);
         this.movingDirection = movingDirection;
@@ -58,7 +58,7 @@ public class Snake {
      * Move this snake in the direction it is moving by 1 unit.
      */
     public void move() {
-        Point2D head = getHead().add(movingDirection.vector());
+        var head = getHead().add(movingDirection.vector());
         body.offerFirst(head);
         body.pollLast();
     }
@@ -86,7 +86,7 @@ public class Snake {
      * @return true if the head of this snake is colliding with the edge of the game board; false otherwise.
      */
     public boolean isCollidingWithEdgeOfBoard(int boundX, int boundY) {
-        Point2D head = getHead();
+        var head = getHead();
         return head.getX() < 0 || head.getX() >= boundX
                 || head.getY() < 0 || head.getY() >= boundY;
     }
@@ -98,7 +98,7 @@ public class Snake {
         if (body.isEmpty())
             return;
 
-        Point2D newTail = getTail().subtract(movingDirection.vector());
+        var newTail = getTail().subtract(movingDirection.vector());
         body.offerLast(newTail);
     }
 

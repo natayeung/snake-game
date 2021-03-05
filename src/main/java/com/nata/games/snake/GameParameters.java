@@ -24,7 +24,7 @@ public class GameParameters {
     static final Color FOOD_COLOR = Color.rgb(255, 0, 0);
     static final Font TEXT_FONT = Font.font("Verdana", 16);
 
-    static final Duration DEFAULT_SNAKE_MOVE_INTERVAL = Duration.millis(1000);
+    static final Duration DEFAULT_SNAKE_MOVE_INTERVAL = Duration.millis(600);
     static final Duration MIN_SNAKE_MOVE_INTERVAL = Duration.millis(100);
     static final Duration SNAKE_MOVE_INTERVAL_DECREMENT = Duration.millis(50);
     static final int SCORE_MILESTONE_FOR_SPEED_CHANGE = 5;

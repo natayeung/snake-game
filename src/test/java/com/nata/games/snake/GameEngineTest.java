@@ -1,5 +1,8 @@
 package com.nata.games.snake;
 
+import com.nata.games.snake.model.Direction;
+import com.nata.games.snake.model.Food;
+import com.nata.games.snake.model.Snake;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import junitparams.JUnitParamsRunner;
@@ -15,13 +18,13 @@ import org.mockito.Spy;
 import java.util.List;
 import java.util.Map;
 
-import static com.nata.games.snake.Direction.RIGHT;
-import static com.nata.games.snake.GameStatus.GAME_OVER;
-import static com.nata.games.snake.GameStatus.IN_PROGRESS;
+import static com.nata.games.snake.model.Direction.RIGHT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -105,7 +108,7 @@ public class GameEngineTest {
         verify(gameViewMock).updateGameBoard(gameStateCaptor.capture());
         GameState capturedGameState = gameStateCaptor.getValue();
         assertAll(
-                () -> assertThat("Game status remains as IN_PROGRESS", capturedGameState.getGameStatus(), is(IN_PROGRESS)),
+                () -> assertFalse("Game is not over", capturedGameState.isGameOver()),
                 () -> assertThat("Score is increased by 1", capturedGameState.getScore(), is(1)),
                 () -> assertThat("Snake has grown", capturedGameState.getSnake().size(), is(2)),
                 () -> assertThat("Food is in a different position", capturedGameState.getFood(), not(foodMock)));
@@ -114,15 +117,15 @@ public class GameEngineTest {
     @Test
     public void shouldNotifyViewToResetGameBoardOnGameRestart() {
         setUpGameStateWhereSnakeHasGrown();
-        setUpGameStateWhereStatusIsGameOver();
+        setUpGameStateWhereGameIsOver();
 
         gameEngine.onGameRestart();
 
-        verify(gameViewMock, times(2)).initGameBoard(gameStateCaptor.capture());
+        verify(gameViewMock, times(2)).initializeGameBoard(gameStateCaptor.capture());
         List<GameState> capturedGameStates = gameStateCaptor.getAllValues();
         GameState lastGameState = capturedGameStates.get(1);
         assertAll(
-                () -> assertThat("Game status is reset to IN_PROGRESS", lastGameState.getGameStatus(), is(IN_PROGRESS)),
+                () -> assertFalse("Game is reset", lastGameState.isGameOver()),
                 () -> assertThat("Score is reset to 0", lastGameState.getScore(), is(0)),
                 () -> assertThat("Snake is re-created", lastGameState.getSnake().size(), is(1)));
     }
@@ -135,7 +138,7 @@ public class GameEngineTest {
     private void verifyGameViewNotifiedOfGameOverStatus() {
         verify(gameViewMock).updateGameBoard(gameStateCaptor.capture());
         GameState capturedGameState = gameStateCaptor.getValue();
-        assertThat(capturedGameState.getGameStatus(), is(GAME_OVER));
+        assertTrue(capturedGameState.isGameOver());
     }
 
     private void setUpGameStateWhereSnakeHasGrown() {
@@ -144,7 +147,7 @@ public class GameEngineTest {
         assertThat(snakeSpy.getLength(), is(2));
     }
 
-    private void setUpGameStateWhereStatusIsGameOver() {
+    private void setUpGameStateWhereGameIsOver() {
         doReturn(true).when(snakeSpy).isCollidingWithBody();
         gameEngine.onNextMove();
     }

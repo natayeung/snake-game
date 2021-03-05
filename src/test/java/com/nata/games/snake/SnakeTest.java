@@ -1,5 +1,8 @@
 package com.nata.games.snake;
 
+import com.nata.games.snake.model.Direction;
+import com.nata.games.snake.model.Food;
+import com.nata.games.snake.model.Snake;
 import javafx.geometry.Point2D;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -7,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.nata.games.snake.Direction.*;
+import static com.nata.games.snake.model.Direction.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;

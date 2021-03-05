@@ -1,5 +1,6 @@
 package com.nata.games.snake;
 
+import com.nata.games.snake.model.Food;
 import javafx.geometry.Point2D;
 
 import java.util.Collection;
@@ -10,7 +11,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * @author natayeung
  */
-class RandomFoodProducer {
+class RandomFoodProducer implements FoodProducer {
 
     private final Random random = new Random(System.currentTimeMillis());
     private final int xBound;
@@ -24,10 +25,10 @@ class RandomFoodProducer {
         this.yBound = yBound;
     }
 
-    Food nextFoodExcludingPositions(Collection<Point2D> excludingPositions) {
+    public Food nextFoodExcludingPositions(Collection<Point2D> excludingPositions) {
         int x = random.nextInt(xBound);
         int y = random.nextInt(yBound);
-        Point2D position = new Point2D(x, y);
+        var position = new Point2D(x, y);
 
         return excludingPositions != null && excludingPositions.contains(position) ? nextFoodExcludingPositions(excludingPositions) : new Food(position);
     }

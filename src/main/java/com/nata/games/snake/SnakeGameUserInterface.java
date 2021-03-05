@@ -4,7 +4,7 @@ import javafx.scene.input.KeyCode;
 
 public interface SnakeGameUserInterface {
 
-    interface EventListener {
+    interface Presenter {
         void onMovingDirectionUpdate(KeyCode code);
 
         void onNextMove();
@@ -13,9 +13,9 @@ public interface SnakeGameUserInterface {
     }
 
     interface View {
-        void setEventListener(EventListener listener);
+        void setPresenter(Presenter presenter);
 
-        void initGameBoard(GameState gameState);
+        void initializeGameBoard(GameState gameState);
 
         void updateGameBoard(GameState gameState);
 
