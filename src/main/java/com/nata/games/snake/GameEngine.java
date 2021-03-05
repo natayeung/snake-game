@@ -26,6 +26,7 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
     private Food food;
     private int score;
     private GameStatus gameStatus;
+    private boolean foodCaughtOnLastMove;
 
     public GameEngine(SnakeGameUserInterface.View gameView, RandomFoodProducer randomFoodProducer,
                       Map<KeyCode, Direction> inputKeyDirectionMapping) {
@@ -52,11 +53,14 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
     public void onNextMove() {
         snake.move();
 
+        foodCaughtOnLastMove = false;
+
         if (snake.isCollidingWithBody() || snake.isCollidingWithEdgeOfBoard(TOTAL_TILES_X, TOTAL_TILES_Y)) {
             gameStatus = GAME_OVER;
         } else if (snake.isCollidingWith(food)) {
             snake.grow();
             score++;
+            foodCaughtOnLastMove = true;
             food = newFood();
         }
 
@@ -91,6 +95,11 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
     }
 
     private GameState newGameState() {
-        return new GameState(snake.getBody(), food.getPosition(), gameStatus, score);
+        return GameState.newBuilder().withSnake(snake.getBody())
+                .withFood(food.getPosition())
+                .withGameStatus(gameStatus)
+                .withScore(score)
+                .withFoodCaughtOnLastMove(foodCaughtOnLastMove)
+                .build();
     }
 }

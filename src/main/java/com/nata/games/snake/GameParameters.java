@@ -24,7 +24,10 @@ public class GameParameters {
     static final Color FOOD_COLOR = Color.rgb(255, 0, 0);
     static final Font TEXT_FONT = Font.font("Verdana", 16);
 
-    static final Duration SNAKE_MOVE_INTERVAL = Duration.millis(500);
+    static final Duration DEFAULT_SNAKE_MOVE_INTERVAL = Duration.millis(1000);
+    static final Duration MIN_SNAKE_MOVE_INTERVAL = Duration.millis(100);
+    static final Duration SNAKE_MOVE_INTERVAL_DECREMENT = Duration.millis(50);
+    static final int SCORE_MILESTONE_FOR_SPEED_CHANGE = 5;
 
     static class DisplayText {
         static final String GAME_OVER_MESSAGE = "Game Over!";
@@ -34,6 +37,11 @@ public class GameParameters {
 
         private DisplayText() {
         }
+    }
+
+    static class Resources {
+        static final String BITE_SOUND_CLIP = "/sound/bite.mp3";
+        static final String GAME_OVER_SOUND_CLIP = "/sound/gameover.mp3";
     }
 
     private GameParameters() {

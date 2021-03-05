@@ -1,6 +1,5 @@
 package com.nata.games.snake;
 
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -14,11 +13,13 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.AudioClip;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,28 +27,30 @@ import java.util.Optional;
 
 import static com.nata.games.snake.GameParameters.*;
 import static com.nata.games.snake.GameParameters.DisplayText.*;
+import static com.nata.games.snake.GameParameters.Resources.BITE_SOUND_CLIP;
+import static com.nata.games.snake.GameParameters.Resources.GAME_OVER_SOUND_CLIP;
 import static com.nata.games.snake.GameStatus.GAME_OVER;
 import static com.nata.games.snake.GameStatus.IN_PROGRESS;
+import static javafx.animation.Animation.INDEFINITE;
 import static javafx.geometry.Pos.TOP_RIGHT;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
  * @author natayeung
+ * Credit: sound from zapsplat
  */
 public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyEvent> {
 
     private final Stage stage;
     private final Map<Point2D, Rectangle> tilesByCoordinates;
-    private final Duration snakeMovementInterval;
+    private final SnakeMovementManager snakeMovementManager = new SnakeMovementManager();
     private SnakeGameUserInterface.EventListener eventListener;
     private GameState gameState;
     private Text scoreValue;
-    private Timeline snakeMovement;
 
     public GameBoard(Stage stage) {
         this.stage = stage;
         this.tilesByCoordinates = new HashMap<>(TOTAL_TILES_X * TOTAL_TILES_Y);
-        this.snakeMovementInterval = SNAKE_MOVE_INTERVAL;
 
         initializeUI();
     }
@@ -59,18 +62,23 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
     @Override
     public void initGameBoard(GameState gameState) {
-        updateGameBoard(gameState);
-        scheduleSnakeMoves();
+        this.gameState = gameState;
+        refreshBoard();
+        snakeMovementManager.scheduleSnakeMovement();
     }
 
     @Override
     public void updateGameBoard(GameState gameState) {
         this.gameState = gameState;
+        playSoundIfFoodCaughtOnLastMove();
         refreshBoard();
+        snakeMovementManager.speedUpSnakeMovementWhenMilestoneMet();
     }
 
     @Override
     public void showGameOverDialog() {
+        playSoundIfGameOver();
+
         ButtonType newGame = new ButtonType(NEW_GAME, ButtonBar.ButtonData.OK_DONE);
         ButtonType exit = new ButtonType(EXIT, ButtonBar.ButtonData.CANCEL_CLOSE);
         Alert dialog = new Alert(Alert.AlertType.NONE, GAME_OVER_MESSAGE, newGame, exit);
@@ -186,19 +194,87 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         scoreValue.setFont(TEXT_FONT);
     }
 
-    private void scheduleSnakeMoves() {
-        snakeMovement = new Timeline(new KeyFrame(snakeMovementInterval, e -> makeNextMoveIfGameStillInProgress()));
-        snakeMovement.setCycleCount(Animation.INDEFINITE);
-        snakeMovement.play();
+    private void playSoundIfFoodCaughtOnLastMove() {
+        if (gameState.isFoodCaughtOnLastMove()) {
+            playSound(BITE_SOUND_CLIP);
+        }
+    }
+
+    private void playSoundIfGameOver() {
+        if (gameState.getGameStatus() == GAME_OVER) {
+            playSound(GAME_OVER_SOUND_CLIP);
+        }
+    }
+
+    private void playSound(String resourceName) {
+        Optional<URL> resource = Optional.ofNullable(getClass().getResource(resourceName));
+        if (resource.isPresent()) {
+            AudioClip sound = new AudioClip(resource.get().toString());
+            sound.play();
+        }
     }
 
     private void makeNextMoveIfGameStillInProgress() {
         if (gameState == null || gameState.getGameStatus() == IN_PROGRESS) {
             eventListener.onNextMove();
         } else if (gameState.getGameStatus() == GAME_OVER) {
-            snakeMovement.stop();
+            snakeMovementManager.stopSnakeMovement();
             // It needs passing to Platform#runLater or it will throw "java.lang.IllegalStateException: showAndWait is not allowed during animation or layout processing"
             Platform.runLater(this::showGameOverDialog);
+        }
+    }
+
+    class SnakeMovementManager {
+        private Duration snakeMovementInterval = DEFAULT_SNAKE_MOVE_INTERVAL;
+        private Timeline snakeMovement;
+        private int lastScoreMilestone = 0;
+
+        private SnakeMovementManager() {
+        }
+
+        void scheduleSnakeMovement() {
+            snakeMovement = new Timeline(newKeyFrame());
+            snakeMovement.setCycleCount(INDEFINITE);
+            snakeMovement.play();
+        }
+
+        void speedUpSnakeMovementWhenMilestoneMet() {
+            if (snakeMovement == null || gameState.getScore() == 0)
+                return;
+
+            if (isNextScoreMilestoneReached() && isMoveIntervalGreaterThanMinimum()) {
+                decrementMoveInterval();
+                rescheduleSnakeMovement();
+                lastScoreMilestone = gameState.getScore();
+            }
+        }
+
+        void stopSnakeMovement() {
+            if (snakeMovement != null) {
+                snakeMovement.stop();
+            }
+        }
+
+        private KeyFrame newKeyFrame() {
+            return new KeyFrame(snakeMovementInterval, e -> makeNextMoveIfGameStillInProgress());
+        }
+
+        private boolean isNextScoreMilestoneReached() {
+            return gameState.getScore() != lastScoreMilestone && gameState.getScore() % SCORE_MILESTONE_FOR_SPEED_CHANGE == 0;
+        }
+
+        private boolean isMoveIntervalGreaterThanMinimum() {
+            return snakeMovementInterval.greaterThan(MIN_SNAKE_MOVE_INTERVAL);
+        }
+
+        private void decrementMoveInterval() {
+            snakeMovementInterval = snakeMovementInterval.subtract(SNAKE_MOVE_INTERVAL_DECREMENT);
+            System.out.println(snakeMovementInterval + "," + gameState.getScore());
+        }
+
+        private void rescheduleSnakeMovement() {
+            stopSnakeMovement();
+            scheduleSnakeMovement();
         }
     }
 }
