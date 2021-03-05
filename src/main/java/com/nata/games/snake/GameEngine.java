@@ -2,6 +2,8 @@ package com.nata.games.snake;
 
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -17,6 +19,8 @@ import static org.apache.commons.collections4.MapUtils.isEmpty;
  * @author natayeung
  */
 public class GameEngine implements SnakeGameUserInterface.EventListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(GameEngine.class);
 
     private static final Direction SNAKE_DEFAULT_MOVING_DIRECTION = RIGHT;
     private final SnakeGameUserInterface.View gameView;
@@ -42,6 +46,8 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
 
     @Override
     public void onMovingDirectionUpdate(KeyCode code) {
+        logger.debug("Received input key {}", code);
+
         if (!directionsByInputKey.containsKey(code))
             return;
 
@@ -50,15 +56,17 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
         if (!attemptedDirection.isOppositeWith(movingDirection)) {
             snake.changeMovingDirection(attemptedDirection);
             movingDirection = attemptedDirection;
+            logger.info("Moving direction changed to {}", movingDirection);
         }
     }
 
     @Override
     public void onNextMove() {
+        logger.debug("Making next move ...");
+
         snake.move();
 
         foodCaughtOnLastMove = false;
-
         if (snake.isCollidingWithBody() || snake.isCollidingWithEdgeOfBoard(TOTAL_TILES_X, TOTAL_TILES_Y)) {
             gameStatus = GAME_OVER;
         } else if (snake.isCollidingWith(food)) {
@@ -96,7 +104,10 @@ public class GameEngine implements SnakeGameUserInterface.EventListener {
     }
 
     private Food newFoodNotInCollisionWith(Snake snake) {
-        return randomFoodProducer.nextFoodExcludingPositions(snake.getBody());
+        Food food = randomFoodProducer.nextFoodExcludingPositions(snake.getBody());
+        logger.debug("Produced food {}", food);
+
+        return food;
     }
 
     private GameState newGameState() {
