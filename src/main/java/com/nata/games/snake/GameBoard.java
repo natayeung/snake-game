@@ -86,9 +86,9 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     public void showGameOverDialog() {
         playSoundIfGameOver();
 
-        var newGame = new ButtonType(NEW_GAME, ButtonBar.ButtonData.OK_DONE);
-        var exit = new ButtonType(EXIT, ButtonBar.ButtonData.CANCEL_CLOSE);
-        var dialog = new Alert(Alert.AlertType.NONE, GAME_OVER_MESSAGE, newGame, exit);
+        ButtonType newGame = new ButtonType(NEW_GAME, ButtonBar.ButtonData.OK_DONE);
+        ButtonType exit = new ButtonType(EXIT, ButtonBar.ButtonData.CANCEL_CLOSE);
+        Alert dialog = new Alert(Alert.AlertType.NONE, GAME_OVER_MESSAGE, newGame, exit);
 
         Optional<ButtonType> choice = dialog.showAndWait();
         if (choice.orElse(exit) == newGame) {
@@ -117,26 +117,26 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private Scene newSceneWith(Parent parent) {
-        var scene = new Scene(parent, WINDOW_WIDTH, WINDOW_HEIGHT);
+        final Scene scene = new Scene(parent, WINDOW_WIDTH, WINDOW_HEIGHT);
         scene.setOnKeyPressed(this);
         return scene;
     }
 
     private Pane newBasePane() {
-        var pane = new VBox();
+        final Pane pane = new VBox();
         pane.setBackground(newWindowBackground());
         pane.setPadding(new Insets(BOARD_PADDING_PX));
         return pane;
     }
 
     private Pane newScorePane() {
-        var scorePane = new HBox();
+        final HBox scorePane = new HBox();
         scorePane.setPrefHeight(SCORE_DISPLAY_HEIGHT);
         scorePane.setAlignment(TOP_RIGHT);
         scorePane.setLayoutX(BOARD_PADDING_PX);
         scorePane.setLayoutY(BOARD_PADDING_PX);
 
-        var scoreDisplayName = new Text(SCORE);
+        final Text scoreDisplayName = new Text(SCORE);
         scoreDisplayName.setFont(TEXT_FONT);
 
         scoreValue = new Text();
@@ -151,13 +151,13 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private Pane newTilesGrid() {
-        var tilesGrid = new GridPane();
+        final GridPane tilesGrid = new GridPane();
         tilesGrid.setLayoutX(BOARD_PADDING_PX);
         tilesGrid.setLayoutY(BOARD_PADDING_PX);
 
         for (int i = 0; i < TOTAL_TILES_X; i++) {
             for (int j = 0; j < TOTAL_TILES_Y; j++) {
-                var tile = newTile(i, j);
+                final Rectangle tile = newTile(i, j);
                 tilesGrid.add(tile, i, j);
             }
         }
@@ -165,7 +165,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private Rectangle newTile(int x, int y) {
-        var tile = new Rectangle(x, y, TILE_SIZE_PX, TILE_SIZE_PX);
+        final Rectangle tile = new Rectangle(x, y, TILE_SIZE_PX, TILE_SIZE_PX);
         tile.setFill(TILE_COLOR);
 
         tilesByCoordinates.put(new Point2D(x, y), tile);
@@ -201,7 +201,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private void updateScore() {
-        int score = gameState.getScore();
+        final int score = gameState.getScore();
         if (score != lastScore) {
             scoreValue.setText(String.valueOf(score));
             scoreValue.setFont(TEXT_FONT);
@@ -224,7 +224,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     private void playSound(String resourceName) {
         Optional<URL> resource = Optional.ofNullable(getClass().getResource(resourceName));
         if (resource.isPresent()) {
-            var sound = new AudioClip(resource.get().toString());
+            final AudioClip sound = new AudioClip(resource.get().toString());
             sound.play();
         } else {
             logger.warn("Sound clip {} not found", resourceName);

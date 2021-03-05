@@ -26,9 +26,9 @@ class RandomFoodProducer implements FoodProducer {
     }
 
     public Food nextFoodExcludingPositions(Collection<Point2D> excludingPositions) {
-        int x = random.nextInt(xBound);
-        int y = random.nextInt(yBound);
-        var position = new Point2D(x, y);
+        final int x = random.nextInt(xBound);
+        final int y = random.nextInt(yBound);
+        final Point2D position = new Point2D(x, y);
 
         return excludingPositions != null && excludingPositions.contains(position) ? nextFoodExcludingPositions(excludingPositions) : new Food(position);
     }

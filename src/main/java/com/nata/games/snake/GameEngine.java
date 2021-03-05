@@ -80,7 +80,7 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
             logger.info("Score updated to {}", score);
         }
 
-        var gameState = newGameState();
+        final GameState gameState = newGameState();
         logger.debug("Game state updated {}", gameState);
 
         gameView.updateGameBoard(gameState);
@@ -106,12 +106,12 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
     }
 
     private Snake newSnake(Direction movingDirection) {
-        var head = new Point2D(TOTAL_TILES_X / 2, TOTAL_TILES_Y / 2);
+        final Point2D head = new Point2D(TOTAL_TILES_X / 2, TOTAL_TILES_Y / 2);
         return new Snake(head, movingDirection);
     }
 
     private Food newFoodNotInCollisionWith(Snake snake) {
-        var food = foodProducer.nextFoodExcludingPositions(snake.getBody());
+        final Food food = foodProducer.nextFoodExcludingPositions(snake.getBody());
         logger.debug("Produced food {}", food);
 
         return food;
