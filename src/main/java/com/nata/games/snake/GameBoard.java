@@ -6,11 +6,12 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
@@ -32,8 +33,12 @@ import static com.nata.games.snake.GameParameters.DisplayText.*;
 import static com.nata.games.snake.GameParameters.Resources.BITE_SOUND_CLIP;
 import static com.nata.games.snake.GameParameters.Resources.GAME_OVER_SOUND_CLIP;
 import static javafx.animation.Animation.INDEFINITE;
+import static javafx.geometry.Pos.BOTTOM_CENTER;
 import static javafx.geometry.Pos.TOP_RIGHT;
+import static javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE;
+import static javafx.scene.control.ButtonBar.ButtonData.OK_DONE;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static javafx.scene.layout.Border.EMPTY;
 
 /**
  * @author natayeung
@@ -49,6 +54,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     private SnakeGameUserInterface.Presenter presenter;
     private GameState gameState;
     private Text scoreValue;
+    private ProgressBar speedIndicator;
     private int lastScore = -1;
 
     public GameBoard(Stage stage) {
@@ -86,8 +92,8 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     public void showGameOverDialog() {
         playSoundIfGameOver();
 
-        ButtonType newGame = new ButtonType(NEW_GAME, ButtonBar.ButtonData.OK_DONE);
-        ButtonType exit = new ButtonType(EXIT, ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType newGame = new ButtonType(NEW_GAME, OK_DONE);
+        ButtonType exit = new ButtonType(EXIT, CANCEL_CLOSE);
         Alert dialog = new Alert(Alert.AlertType.NONE, GAME_OVER_MESSAGE, newGame, exit);
 
         Optional<ButtonType> choice = dialog.showAndWait();
@@ -107,11 +113,12 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private void initializeUI() {
-        Pane basePane = newBasePane();
+        final Pane basePane = newBasePane();
         stage.setScene(newSceneWith(basePane));
 
-        basePane.getChildren().add(newScorePane());
-        basePane.getChildren().add(newTilesGrid());
+        basePane.getChildren().addAll(newScorePane(),
+                newTilesGrid(),
+                newSpeedIndicatorPane());
 
         stage.show();
     }
@@ -129,21 +136,39 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         return pane;
     }
 
+    private Pane newSpeedIndicatorPane() {
+        final Pane speedPane = newInfoDisplayPane(BOTTOM_CENTER);
+        speedIndicator = new ProgressBar(0);
+        speedPane.getChildren().add(speedIndicator);
+
+        return speedPane;
+    }
+
     private Pane newScorePane() {
-        final HBox scorePane = new HBox();
-        scorePane.setPrefHeight(SCORE_DISPLAY_HEIGHT);
-        scorePane.setAlignment(TOP_RIGHT);
-        scorePane.setLayoutX(BOARD_PADDING_PX);
-        scorePane.setLayoutY(BOARD_PADDING_PX);
-
-        final Text scoreDisplayName = new Text(SCORE);
-        scoreDisplayName.setFont(TEXT_FONT);
-
-        scoreValue = new Text();
+        final Pane scorePane = newInfoDisplayPane(TOP_RIGHT);
+        final Text scoreDisplayName = newDisplayText(SCORE);
+        scoreValue = newDisplayText("");
 
         scorePane.getChildren().addAll(scoreDisplayName, scoreValue);
 
         return scorePane;
+    }
+
+    private Pane newInfoDisplayPane(Pos alignment) {
+        final HBox pane = new HBox();
+        pane.setPrefHeight(INFO_DISPLAY_HEIGHT);
+        pane.setAlignment(alignment);
+        pane.setLayoutX(BOARD_PADDING_PX);
+        pane.setLayoutY(BOARD_PADDING_PX);
+
+        return pane;
+    }
+
+    private Text newDisplayText(String text) {
+        final Text displayText = new Text(text);
+        displayText.setFont(TEXT_FONT);
+        displayText.setFill(TEXT_COLOR);
+        return displayText;
     }
 
     private Background newWindowBackground() {
@@ -263,6 +288,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
             if (isNextScoreMilestoneReached() && isMoveIntervalGreaterThanMinimum()) {
                 decrementMoveInterval();
+                updateSpeedIndication();
                 rescheduleSnakeMovement();
                 lastScoreMilestone = gameState.getScore();
             }
@@ -292,6 +318,16 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         private void decrementMoveInterval() {
             snakeMovementInterval = snakeMovementInterval.subtract(SNAKE_MOVE_INTERVAL_DECREMENT);
             logger.debug("Decremented snake move interval {}", snakeMovementInterval);
+        }
+
+        private void updateSpeedIndication() {
+            double progress = DEFAULT_SNAKE_MOVE_INTERVAL.toMillis() - snakeMovementInterval.toMillis();
+            double base = DEFAULT_SNAKE_MOVE_INTERVAL.toMillis() - MIN_SNAKE_MOVE_INTERVAL.toMillis();
+            final double indication = progress / base;
+            speedIndicator.setProgress(indication);
+            speedIndicator.setBorder(EMPTY);
+
+            logger.info("Speed indication {} ", indication);
         }
 
         private void rescheduleSnakeMovement() {

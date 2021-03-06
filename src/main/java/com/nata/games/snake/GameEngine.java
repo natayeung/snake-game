@@ -58,7 +58,7 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
             snake.changeMovingDirection(attemptedDirection);
             movingDirection = attemptedDirection;
 
-            logger.info("Moving direction updated to {}", movingDirection);
+            logger.debug("Moving direction updated to {}", movingDirection);
         }
     }
 
