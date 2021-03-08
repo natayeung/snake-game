@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.isNull;
 
 /**
  * @author natayeung
@@ -30,6 +31,6 @@ class RandomFoodProducer implements FoodProducer {
         final int y = random.nextInt(yBound);
         final Point2D position = new Point2D(x, y);
 
-        return excludingPositions != null && excludingPositions.contains(position) ? nextFoodExcludingPositions(excludingPositions) : new Food(position);
+        return !isNull(excludingPositions) && excludingPositions.contains(position) ? nextFoodExcludingPositions(excludingPositions) : new Food(position);
     }
 }

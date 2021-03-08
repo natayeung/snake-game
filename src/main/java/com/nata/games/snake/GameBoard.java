@@ -32,6 +32,7 @@ import static com.nata.games.snake.GameParameters.*;
 import static com.nata.games.snake.GameParameters.DisplayText.*;
 import static com.nata.games.snake.GameParameters.Resources.BITE_SOUND_CLIP;
 import static com.nata.games.snake.GameParameters.Resources.GAME_OVER_SOUND_CLIP;
+import static java.util.Objects.isNull;
 import static javafx.animation.Animation.INDEFINITE;
 import static javafx.geometry.Pos.BOTTOM_CENTER;
 import static javafx.geometry.Pos.TOP_RIGHT;
@@ -42,7 +43,7 @@ import static javafx.scene.layout.Border.EMPTY;
 
 /**
  * @author natayeung
- * Credit: sound from zapsplat
+ * Credits: sound from zapsplat
  */
 public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyEvent> {
 
@@ -50,7 +51,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
     private final Stage stage;
     private final Map<Point2D, Rectangle> tilesByCoordinates;
-    private final SnakeMovementManager snakeMovementManager = new SnakeMovementManager();
+    private final SnakeMovementManager snakeMovementManager;
     private SnakeGameUserInterface.Presenter presenter;
     private GameState gameState;
     private Text scoreValue;
@@ -60,6 +61,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     public GameBoard(Stage stage) {
         this.stage = stage;
         this.tilesByCoordinates = new HashMap<>(TOTAL_TILES_X * TOTAL_TILES_Y);
+        this.snakeMovementManager = new SnakeMovementManager();
 
         initializeUI();
     }
@@ -75,6 +77,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
         this.gameState = gameState;
         refreshBoard();
+        snakeMovementManager.reset();
         snakeMovementManager.scheduleSnakeMovement();
     }
 
@@ -87,8 +90,6 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         refreshBoard();
         snakeMovementManager.speedUpSnakeMovementWhenMilestoneMet();
     }
-
-    @Override
     public void showGameOverDialog() {
         playSoundIfGameOver();
 
@@ -198,7 +199,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         return tile;
     }
 
-    private Optional<Rectangle> getTile(Point2D coordinates) {
+    private Optional<Rectangle> getTileBy(Point2D coordinates) {
         return Optional.ofNullable(tilesByCoordinates.get(coordinates));
     }
 
@@ -218,11 +219,11 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
 
         Collection<Point2D> snake = gameState.getSnake();
         for (Point2D p : snake) {
-            getTile(p).ifPresent(tile -> tile.setFill(SNAKE_COLOR));
+            getTileBy(p).ifPresent(tile -> tile.setFill(SNAKE_COLOR));
         }
 
         Point2D food = gameState.getFood();
-        getTile(food).ifPresent(tile -> tile.setFill(FOOD_COLOR));
+        getTileBy(food).ifPresent(tile -> tile.setFill(FOOD_COLOR));
     }
 
     private void updateScore() {
@@ -257,7 +258,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     private void makeNextMoveIfGameStillInProgress() {
-        if (gameState == null || !gameState.isGameOver()) {
+        if (isNull(gameState) || !gameState.isGameOver()) {
             presenter.onNextMove();
         } else {
             snakeMovementManager.stopSnakeMovement();
@@ -267,23 +268,32 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
     }
 
     class SnakeMovementManager {
-        private Duration snakeMovementInterval = DEFAULT_SNAKE_MOVE_INTERVAL;
+        private Duration currentSnakeMoveInterval;
         private Timeline snakeMovement;
-        private int lastScoreMilestone = 0;
+        private int lastScoreMilestone;
 
         private SnakeMovementManager() {
+            reset();
+        }
+
+        void reset() {
+            currentSnakeMoveInterval = INITIAL_SNAKE_MOVE_INTERVAL;
+            lastScoreMilestone = 0;
+            if (!isNull(speedIndicator)) {
+                speedIndicator.setProgress(0);
+            }
         }
 
         void scheduleSnakeMovement() {
-            snakeMovement = new Timeline(newKeyFrame(snakeMovementInterval));
+            snakeMovement = new Timeline(newKeyFrame(currentSnakeMoveInterval));
             snakeMovement.setCycleCount(INDEFINITE);
             snakeMovement.play();
 
-            logger.info("Scheduled snake movement, interval={}", snakeMovementInterval);
+            logger.info("Scheduled snake movement, interval={}", currentSnakeMoveInterval);
         }
 
         void speedUpSnakeMovementWhenMilestoneMet() {
-            if (snakeMovement == null || gameState.getScore() == 0)
+            if (isNull(snakeMovement) || gameState.getScore() == 0)
                 return;
 
             if (isNextScoreMilestoneReached() && isMoveIntervalGreaterThanMinimum()) {
@@ -295,7 +305,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         }
 
         void stopSnakeMovement() {
-            if (snakeMovement != null) {
+            if (!isNull(snakeMovement)) {
                 snakeMovement.stop();
                 logger.debug("Stopped snake movement");
             }
@@ -312,18 +322,18 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         }
 
         private boolean isMoveIntervalGreaterThanMinimum() {
-            return snakeMovementInterval.greaterThan(MIN_SNAKE_MOVE_INTERVAL);
+            return currentSnakeMoveInterval.greaterThan(MIN_SNAKE_MOVE_INTERVAL);
         }
 
         private void decrementMoveInterval() {
-            snakeMovementInterval = snakeMovementInterval.subtract(SNAKE_MOVE_INTERVAL_DECREMENT);
-            logger.debug("Decremented snake move interval {}", snakeMovementInterval);
+            currentSnakeMoveInterval = currentSnakeMoveInterval.subtract(SNAKE_MOVE_INTERVAL_DECREMENT);
+            logger.debug("Decremented snake move interval {}", currentSnakeMoveInterval);
         }
 
         private void updateSpeedIndication() {
-            double progress = DEFAULT_SNAKE_MOVE_INTERVAL.toMillis() - snakeMovementInterval.toMillis();
-            double base = DEFAULT_SNAKE_MOVE_INTERVAL.toMillis() - MIN_SNAKE_MOVE_INTERVAL.toMillis();
-            final double indication = progress / base;
+            double progress = INITIAL_SNAKE_MOVE_INTERVAL.toMillis() - currentSnakeMoveInterval.toMillis();
+            double whole = INITIAL_SNAKE_MOVE_INTERVAL.toMillis() - MIN_SNAKE_MOVE_INTERVAL.toMillis();
+            final double indication = progress / whole;
             speedIndicator.setProgress(indication);
             speedIndicator.setBorder(EMPTY);
 

@@ -18,7 +18,5 @@ public interface SnakeGameUserInterface {
         void initializeGameBoard(GameState gameState);
 
         void updateGameBoard(GameState gameState);
-
-        void showGameOverDialog();
     }
 }

@@ -2,6 +2,8 @@ package com.nata.games.snake.model;
 
 import javafx.geometry.Point2D;
 
+import static java.util.Objects.isNull;
+
 /**
  * @author natayeung
  */
@@ -22,7 +24,7 @@ public enum Direction {
     }
 
     public boolean isOppositeWith(Direction anotherDirection) {
-        if (anotherDirection == null)
+        if (isNull(anotherDirection))
             return false;
 
         return this.vector.add(anotherDirection.vector).equals(Point2D.ZERO);
