@@ -1,32 +1,31 @@
 package com.nata.games.snake;
 
-import com.nata.games.snake.model.Direction;
-import com.nata.games.snake.model.Food;
-import com.nata.games.snake.model.Snake;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.nata.games.snake.GameParameters.TOTAL_TILES_X;
-import static com.nata.games.snake.GameParameters.TOTAL_TILES_Y;
-import static com.nata.games.snake.model.Direction.RIGHT;
+import static com.nata.games.snake.Direction.RIGHT;
+import static com.nata.games.snake.GameParameters.*;
 import static org.apache.commons.collections4.MapUtils.isEmpty;
 
 /**
  * @author natayeung
  */
-public class GameEngine implements SnakeGameUserInterface.Presenter {
+public class GameEngine implements SnakeGameUserInterface.Presenter, SnakeMoveExecutable {
 
     private static final Logger logger = LoggerFactory.getLogger(GameEngine.class);
+    private static final Direction DEFAULT_MOVING_DIRECTION = RIGHT;
 
-    private static final Direction SNAKE_DEFAULT_MOVING_DIRECTION = RIGHT;
     private final SnakeGameUserInterface.View gameView;
     private final FoodProducer foodProducer;
     private final Map<KeyCode, Direction> directionsByInputKey;
+    private final GameMoveSchedulable gameMoveScheduler;
+
     private Snake snake;
     private Food food;
     private int score;
@@ -34,12 +33,15 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
     private boolean gameOver;
     private Direction movingDirection;
 
-    public GameEngine(SnakeGameUserInterface.View gameView, FoodProducer foodProducer,
+    public GameEngine(SnakeGameUserInterface.View gameView,
+                      FoodProducer foodProducer,
+                      GameMoveSchedulable gameMoveScheduler,
                       Map<KeyCode, Direction> inputKeyDirectionMapping) {
         isEmpty(inputKeyDirectionMapping);
 
-        this.gameView = checkNotNull(gameView);
-        this.foodProducer = checkNotNull(foodProducer);
+        this.gameView = checkNotNull(gameView, "Game view must be specified");
+        this.foodProducer = checkNotNull(foodProducer, "Food producer must be specified");
+        this.gameMoveScheduler = checkNotNull(gameMoveScheduler, "Game move scheduler must be specified");
         this.directionsByInputKey = inputKeyDirectionMapping;
 
         setUpNewGame();
@@ -52,7 +54,7 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
         if (!directionsByInputKey.containsKey(code))
             return;
 
-        Direction attemptedDirection = directionsByInputKey.get(code);
+        final Direction attemptedDirection = directionsByInputKey.get(code);
 
         if (!attemptedDirection.isOppositeWith(movingDirection)) {
             snake.changeMovingDirection(attemptedDirection);
@@ -63,32 +65,13 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
     }
 
     @Override
-    public void onNextMove() {
-        logger.debug("Making next move ...");
-
-        snake.move();
-
-        foodCaughtOnLastMove = false;
-        if (snake.isCollidingWithBody() || snake.isCollidingWithEdgeOfBoard(TOTAL_TILES_X, TOTAL_TILES_Y)) {
-            gameOver = true;
-        } else if (snake.isCollidingWith(food)) {
-            snake.grow();
-            score++;
-            foodCaughtOnLastMove = true;
-            food = newFoodNotInCollisionWith(snake);
-
-            logger.info("Score updated to {}", score);
-        }
-
-        final GameState gameState = newGameState();
-        logger.debug("Game state updated {}", gameState);
-
-        gameView.updateGameBoard(gameState);
+    public void onGameRestart() {
+        setUpNewGame();
     }
 
     @Override
-    public void onGameRestart() {
-        setUpNewGame();
+    public void run() {
+        executeNextMove();
     }
 
     public void setSnake(Snake snake) {
@@ -96,13 +79,17 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
     }
 
     private void setUpNewGame() {
-        movingDirection = SNAKE_DEFAULT_MOVING_DIRECTION;
+        initialize();
+        gameView.initializeGameBoard(newGameState());
+        gameMoveScheduler.start(this, INITIAL_MOVE_INTERVAL);
+    }
+
+    private void initialize() {
+        movingDirection = DEFAULT_MOVING_DIRECTION;
         snake = newSnake(movingDirection);
         food = newFoodNotInCollisionWith(snake);
         score = 0;
         gameOver = false;
-
-        gameView.initializeGameBoard(newGameState());
     }
 
     private Snake newSnake(Direction movingDirection) {
@@ -118,11 +105,47 @@ public class GameEngine implements SnakeGameUserInterface.Presenter {
     }
 
     private GameState newGameState() {
-        return GameState.newBuilder().withSnake(snake.getBody())
+        final GameState gameState = GameState.newBuilder()
+                .withSnake(snake.getBody())
                 .withFood(food.getPosition())
                 .withScore(score)
                 .isFoodCaughtOnLastMove(foodCaughtOnLastMove)
                 .isGameOver(gameOver)
+                .withSpeedIndication(computeSpeedIndication())
                 .build();
+
+        logger.debug("Game state={}", gameState);
+
+        return gameState;
+    }
+
+    private double computeSpeedIndication() {
+        final Duration moveInterval = gameMoveScheduler.getMoveInterval().orElse(INITIAL_MOVE_INTERVAL);
+        final double progress = INITIAL_MOVE_INTERVAL.toMillis() - moveInterval.toMillis();
+        final double whole = INITIAL_MOVE_INTERVAL.toMillis() - MIN_MOVE_INTERVAL.toMillis();
+        return progress / whole;
+    }
+
+    private void executeNextMove() {
+        snake.move();
+        evaluateOutcome();
+        gameView.updateGameBoard(newGameState());
+    }
+
+    private void evaluateOutcome() {
+        foodCaughtOnLastMove = false;
+
+        if (snake.isCollidingWithBody() || snake.isCollidingWithEdgeOfBoard(TOTAL_TILES_X, TOTAL_TILES_Y)) {
+            gameOver = true;
+
+            gameMoveScheduler.stop();
+        } else if (snake.isCollidingWith(food)) {
+            snake.grow();
+            score++;
+            foodCaughtOnLastMove = true;
+            food = newFoodNotInCollisionWith(snake);
+
+            gameMoveScheduler.updateMoveIntervalIfNextMilestoneReached(score);
+        }
     }
 }

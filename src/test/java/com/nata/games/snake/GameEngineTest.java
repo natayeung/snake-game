@@ -1,32 +1,33 @@
 package com.nata.games.snake;
 
-import com.nata.games.snake.model.Direction;
-import com.nata.games.snake.model.Food;
-import com.nata.games.snake.model.Snake;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static com.nata.games.snake.model.Direction.RIGHT;
+import static com.nata.games.snake.Direction.RIGHT;
+import static com.nata.games.snake.GameParameters.INITIAL_MOVE_INTERVAL;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -37,11 +38,14 @@ import static org.mockito.MockitoAnnotations.openMocks;
 public class GameEngineTest {
 
     private final Direction initialMovingDirection = RIGHT;
+    private final Point2D foodPosition = new Point2D(0, 9);
 
     @Mock
     private SnakeGameUserInterface.View gameViewMock;
     @Mock
-    private RandomFoodProducer randomFoodProducerMock;
+    private FoodProducer foodProducerMock;
+    @Mock
+    private GameMoveSchedulable gameMoveSchedulerMock;
     @Mock
     private Food foodMock;
     @Spy
@@ -55,11 +59,23 @@ public class GameEngineTest {
     public void setUp() {
         openMocks(this);
 
-        when(randomFoodProducerMock.nextFoodExcludingPositions(any())).thenReturn(foodMock);
-        when(foodMock.getPosition()).thenReturn(new Point2D(0, 9));
+        when(foodProducerMock.nextFoodExcludingPositions(any())).thenReturn(foodMock);
+        when(foodMock.getPosition()).thenReturn(foodPosition);
 
-        gameEngine = new GameEngine(gameViewMock, randomFoodProducerMock, inputKeyDirectionMapping());
+        gameEngine = new GameEngine(gameViewMock, foodProducerMock, gameMoveSchedulerMock, inputKeyDirectionMapping());
         gameEngine.setSnake(snakeSpy);
+    }
+
+    @Test
+    public void shouldStartGameMoveSchedulerOnInstantiation() {
+        verify(gameMoveSchedulerMock).start(gameEngine, INITIAL_MOVE_INTERVAL);
+    }
+
+    @Test
+    public void shouldNotifyViewToInitializeGameBoardOnInstantiation() {
+        verify(gameViewMock).initializeGameBoard(gameStateCaptor.capture());
+        GameState capturedGameState = gameStateCaptor.getValue();
+        assertGameStateInitialisedCorrectly(capturedGameState);
     }
 
     @Test
@@ -82,36 +98,52 @@ public class GameEngineTest {
     }
 
     @Test
-    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithBodyOnNextMove() {
+    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithBody() {
         doReturn(true).when(snakeSpy).isCollidingWithBody();
 
-        gameEngine.onNextMove();
+        gameEngine.run();
 
         verifyGameViewNotifiedOfGameOverStatus();
     }
 
     @Test
-    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithEdgeOfBoardOnNextMove() {
+    public void shouldNotifyViewOfGameStatusChangeWhenSnakeIsCollidingWithEdgeOfBoard() {
         doReturn(true).when(snakeSpy).isCollidingWithEdgeOfBoard(anyInt(), anyInt());
 
-        gameEngine.onNextMove();
+        gameEngine.run();
 
         verifyGameViewNotifiedOfGameOverStatus();
     }
 
     @Test
-    public void shouldNotifyViewOfNewGameStateWhenSnakeIsCollidingWithFoodOnNextMove() {
+    public void shouldNotifyViewOfNewGameStateWhenSnakeIsCollidingWithFood() {
+        doReturn(Optional.of(INITIAL_MOVE_INTERVAL)).when(gameMoveSchedulerMock).getMoveInterval();
         doReturn(true).when(snakeSpy).isCollidingWith(foodMock);
 
-        gameEngine.onNextMove();
+        gameEngine.run();
 
         verify(gameViewMock).updateGameBoard(gameStateCaptor.capture());
         GameState capturedGameState = gameStateCaptor.getValue();
-        assertAll(
+        assertAll("New game state",
                 () -> assertFalse("Game is not over", capturedGameState.isGameOver()),
+                () -> assertTrue("Food is caught", capturedGameState.isFoodCaughtOnLastMove()),
                 () -> assertThat("Score is increased by 1", capturedGameState.getScore(), is(1)),
-                () -> assertThat("Snake has grown", capturedGameState.getSnake().size(), is(2)),
+                () -> assertThat("Speed indication remains unchanged", capturedGameState.getSpeedIndication(), is(0.0)),
+                () -> assertThat("Snake has grown", capturedGameState.getSnake().size(), greaterThan(1)),
                 () -> assertThat("Food is in a different position", capturedGameState.getFood(), not(foodMock)));
+    }
+
+    @Test
+    public void shouldNotifyViewOfNewSpeedIndicationWhenMoveIntervalIsDecreased() {
+        Duration newMoveInterval = INITIAL_MOVE_INTERVAL.minus(Duration.ofMillis(100));
+        doReturn(Optional.of(newMoveInterval)).when(gameMoveSchedulerMock).getMoveInterval();
+        doReturn(true).when(snakeSpy).isCollidingWith(foodMock);
+
+        gameEngine.run();
+
+        verify(gameViewMock).updateGameBoard(gameStateCaptor.capture());
+        GameState capturedGameState = gameStateCaptor.getValue();
+        assertThat(capturedGameState.getSpeedIndication(), greaterThan(0.0));
     }
 
     @Test
@@ -124,15 +156,22 @@ public class GameEngineTest {
         verify(gameViewMock, times(2)).initializeGameBoard(gameStateCaptor.capture());
         List<GameState> capturedGameStates = gameStateCaptor.getAllValues();
         GameState lastGameState = capturedGameStates.get(1);
-        assertAll(
-                () -> assertFalse("Game is reset", lastGameState.isGameOver()),
-                () -> assertThat("Score is reset to 0", lastGameState.getScore(), is(0)),
-                () -> assertThat("Snake is re-created", lastGameState.getSnake().size(), is(1)));
+        assertGameStateInitialisedCorrectly(lastGameState);
     }
 
     private Map<KeyCode, Direction> inputKeyDirectionMapping() {
         return Map.of(KeyCode.UP, Direction.UP, KeyCode.DOWN, Direction.DOWN,
                 KeyCode.LEFT, Direction.LEFT, KeyCode.RIGHT, RIGHT);
+    }
+
+    private void assertGameStateInitialisedCorrectly(GameState capturedGameState) {
+        Assertions.assertAll("Initialized game state",
+                () -> assertThat(capturedGameState.getSnake().size(), is(1)),
+                () -> assertThat(capturedGameState.getFood(), is(foodPosition)),
+                () -> assertThat(capturedGameState.getScore(), is(0)),
+                () -> assertThat(capturedGameState.getSpeedIndication(), is(0.0)),
+                () -> assertFalse(capturedGameState.isGameOver()),
+                () -> assertFalse(capturedGameState.isFoodCaughtOnLastMove()));
     }
 
     private void verifyGameViewNotifiedOfGameOverStatus() {
@@ -143,12 +182,12 @@ public class GameEngineTest {
 
     private void setUpGameStateWhereSnakeHasGrown() {
         doReturn(true).when(snakeSpy).isCollidingWith(foodMock);
-        gameEngine.onNextMove();
-        assertThat(snakeSpy.getLength(), is(2));
+        gameEngine.run();
+        assertThat(snakeSpy.getLength(), greaterThan(1));
     }
 
     private void setUpGameStateWhereGameIsOver() {
         doReturn(true).when(snakeSpy).isCollidingWithBody();
-        gameEngine.onNextMove();
+        gameEngine.run();
     }
 }
