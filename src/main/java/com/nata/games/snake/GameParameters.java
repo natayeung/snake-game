@@ -2,7 +2,7 @@ package com.nata.games.snake;
 
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
+import java.time.Duration;
 
 import static javafx.scene.text.FontWeight.BOLD;
 
@@ -27,9 +27,9 @@ public class GameParameters {
     static final Color TEXT_COLOR = Color.rgb(64, 64, 64);
     static final Font TEXT_FONT = Font.font("Verdana", BOLD, 14);
 
-    static final Duration INITIAL_SNAKE_MOVE_INTERVAL = Duration.millis(500);
-    static final Duration MIN_SNAKE_MOVE_INTERVAL = Duration.millis(100);
-    static final Duration SNAKE_MOVE_INTERVAL_DECREMENT = Duration.millis(50);
+    static final Duration INITIAL_MOVE_INTERVAL = Duration.ofMillis(500);
+    static final Duration MIN_MOVE_INTERVAL = Duration.ofMillis(100);
+    static final Duration MOVE_INTERVAL_DECREMENT = Duration.ofMillis(50);
     static final int SCORE_MILESTONE_FOR_SPEED_CHANGE = 5;
 
     static class DisplayText {
