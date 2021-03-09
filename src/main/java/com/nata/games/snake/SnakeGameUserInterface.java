@@ -7,6 +7,8 @@ public interface SnakeGameUserInterface {
     interface Presenter {
         void onMovingDirectionUpdate(KeyCode code);
 
+        void onNextMove();
+
         void onGameRestart();
     }
 
@@ -16,13 +18,5 @@ public interface SnakeGameUserInterface {
         void initializeGameBoard(GameState gameState);
 
         void updateGameBoard(GameState gameState);
-
-        interface StateChangeObserver {
-            void stateChanged(GameState gameState);
-        }
-    }
-
-    interface GameRestartable {
-        void restartGame();
     }
 }

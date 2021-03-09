@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.nata.games.snake.model;
 
 import javafx.geometry.Point2D;
 
