@@ -32,7 +32,7 @@ public class TilesGridUpdater implements SnakeGameUserInterface.View.StateChange
 
     private void updateTilesGrid(GameState gameState) {
         for (Rectangle tile : tilesByCoordinates.values()) {
-            tile.setFill(TILE_COLOR);
+            tile.setFill(EMPTY_COLOR);
         }
 
         final Collection<Point2D> snake = gameState.getSnake();
