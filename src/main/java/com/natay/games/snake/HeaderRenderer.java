@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -8,12 +8,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 
-import static com.nata.games.snake.GameParameters.DisplayText.CLOSE;
-import static com.nata.games.snake.GameParameters.DisplayText.TITLE;
-import static com.nata.games.snake.GameParameters.Resources.CLOSE_BUTTON_ICON;
-import static com.nata.games.snake.GameParameters.Resources.SNAKE_ICON;
-import static com.nata.games.snake.UIUtils.newHorizontalPaneWithStyle;
-
 /**
  * @author natayeung
  */
@@ -21,7 +15,7 @@ public class HeaderRenderer implements SnakeGameUserInterface.View.ComponentInit
 
     @Override
     public Node initialize() {
-        final HBox headerPane = newHorizontalPaneWithStyle("header-pane");
+        final HBox headerPane = UIUtils.newHorizontalPaneWithStyle("header-pane");
         final Label snakeLabel = newSnakeLabel();
         final Button closeButton = newCloseButton();
         final Region filler = newFiller();
@@ -32,7 +26,7 @@ public class HeaderRenderer implements SnakeGameUserInterface.View.ComponentInit
 
     private Label newSnakeLabel() {
         final Label snakeLabel = new Label();
-        UIUtils.setIconIfFoundOrElseSetText(snakeLabel, SNAKE_ICON, TITLE);
+        UIUtils.setIconIfFoundOrElseSetText(snakeLabel, GameParameters.Resources.SNAKE_ICON, GameParameters.DisplayText.TITLE);
 
         return snakeLabel;
     }
@@ -43,7 +37,7 @@ public class HeaderRenderer implements SnakeGameUserInterface.View.ComponentInit
         closeButton.setFocusTraversable(false); // This is so that the scene can receive arrow key events.
         closeButton.setOnMouseClicked(mouseEvent -> Platform.exit());
 
-        UIUtils.setIconIfFoundOrElseSetText(closeButton, CLOSE_BUTTON_ICON, CLOSE);
+        UIUtils.setIconIfFoundOrElseSetText(closeButton, GameParameters.Resources.CLOSE_BUTTON_ICON, GameParameters.DisplayText.CLOSE);
 
         return closeButton;
     }

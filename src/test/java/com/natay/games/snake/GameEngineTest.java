@@ -1,9 +1,10 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.hamcrest.core.IsNot;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -18,8 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.nata.games.snake.Direction.RIGHT;
-import static com.nata.games.snake.GameParameters.INITIAL_MOVE_INTERVAL;
+import static com.natay.games.snake.Direction.RIGHT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -68,7 +68,7 @@ public class GameEngineTest {
 
     @Test
     public void shouldStartGameMoveSchedulerOnInstantiation() {
-        verify(gameMoveSchedulerMock).start(gameEngine, INITIAL_MOVE_INTERVAL);
+        verify(gameMoveSchedulerMock).start(gameEngine, GameParameters.INITIAL_MOVE_INTERVAL);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class GameEngineTest {
 
     @Test
     public void shouldNotifyViewOfNewGameStateWhenSnakeIsCollidingWithFood() {
-        doReturn(Optional.of(INITIAL_MOVE_INTERVAL)).when(gameMoveSchedulerMock).getMoveInterval();
+        doReturn(Optional.of(GameParameters.INITIAL_MOVE_INTERVAL)).when(gameMoveSchedulerMock).getMoveInterval();
         doReturn(true).when(snakeSpy).isCollidingWith(foodMock);
 
         gameEngine.run();
@@ -130,12 +130,12 @@ public class GameEngineTest {
                 () -> assertThat("Score is increased by 1", capturedGameState.getScore(), is(1)),
                 () -> assertThat("Speed indication remains unchanged", capturedGameState.getSpeedIndication(), is(0.0)),
                 () -> assertThat("Snake has grown", capturedGameState.getSnake().size(), greaterThan(1)),
-                () -> assertThat("Food is in a different position", capturedGameState.getFood(), not(foodMock)));
+                () -> assertThat("Food is in a different position", capturedGameState.getFood(), IsNot.not(foodMock)));
     }
 
     @Test
     public void shouldNotifyViewOfNewSpeedIndicationWhenMoveIntervalIsDecreased() {
-        Duration newMoveInterval = INITIAL_MOVE_INTERVAL.minus(Duration.ofMillis(100));
+        Duration newMoveInterval = GameParameters.INITIAL_MOVE_INTERVAL.minus(Duration.ofMillis(100));
         doReturn(Optional.of(newMoveInterval)).when(gameMoveSchedulerMock).getMoveInterval();
         doReturn(true).when(snakeSpy).isCollidingWith(foodMock);
 

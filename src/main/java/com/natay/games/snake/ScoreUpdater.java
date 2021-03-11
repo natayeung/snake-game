@@ -1,13 +1,10 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
-import static com.nata.games.snake.GameParameters.DisplayText.SCORE;
-import static com.nata.games.snake.GameParameters.Resources.APPLE_ICON;
-import static com.nata.games.snake.UIUtils.newHorizontalPaneWithStyle;
 import static java.util.Objects.isNull;
 
 /**
@@ -23,9 +20,9 @@ public class ScoreUpdater implements SnakeGameUserInterface.View.ComponentInitia
 
     @Override
     public Node initialize() {
-        final Pane scorePane = newHorizontalPaneWithStyle("score-pane");
+        final Pane scorePane = UIUtils.newHorizontalPaneWithStyle("score-pane");
         final Label scoreLabel = new Label();
-        UIUtils.setIconIfFoundOrElseSetText(scoreLabel, APPLE_ICON, SCORE);
+        UIUtils.setIconIfFoundOrElseSetText(scoreLabel, GameParameters.Resources.APPLE_ICON, GameParameters.DisplayText.SCORE);
 
         scorePane.getChildren().addAll(scoreLabel, scoreValue);
 

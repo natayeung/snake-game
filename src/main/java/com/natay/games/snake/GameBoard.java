@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.nata.games.snake.GameParameters.Resources.STYLESHEET;
-import static com.nata.games.snake.GameParameters.WINDOW_HEIGHT;
-import static com.nata.games.snake.GameParameters.WINDOW_WIDTH;
+import static com.natay.games.snake.GameParameters.Resources.STYLESHEET;
+import static com.natay.games.snake.GameParameters.WINDOW_HEIGHT;
+import static com.natay.games.snake.GameParameters.WINDOW_WIDTH;
 import static java.util.Objects.isNull;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.stage.StageStyle.UNDECORATED;

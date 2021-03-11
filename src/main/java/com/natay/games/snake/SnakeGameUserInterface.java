@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;

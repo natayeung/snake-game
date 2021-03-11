@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.geometry.Point2D;
 import junitparams.JUnitParamsRunner;
@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.nata.games.snake.Direction.*;
+import static com.natay.games.snake.Direction.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;

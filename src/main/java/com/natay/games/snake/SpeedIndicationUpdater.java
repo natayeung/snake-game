@@ -1,13 +1,10 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Pane;
 
-import static com.nata.games.snake.GameParameters.DisplayText.SPEED;
-import static com.nata.games.snake.GameParameters.Resources.SPEED_ICON;
-import static com.nata.games.snake.UIUtils.newHorizontalPaneWithStyle;
 import static java.util.Objects.isNull;
 
 /**
@@ -23,9 +20,9 @@ public class SpeedIndicationUpdater implements SnakeGameUserInterface.View.Compo
 
     @Override
     public Node initialize() {
-        final Pane speedPane = newHorizontalPaneWithStyle("speed-indicator-pane");
+        final Pane speedPane = UIUtils.newHorizontalPaneWithStyle("speed-indicator-pane");
         final Label speedLabel = new Label();
-        UIUtils.setIconIfFoundOrElseSetText(speedLabel, SPEED_ICON, SPEED);
+        UIUtils.setIconIfFoundOrElseSetText(speedLabel, GameParameters.Resources.SPEED_ICON, GameParameters.DisplayText.SPEED);
 
         speedPane.getChildren().addAll(speedLabel, speedIndicator);
 

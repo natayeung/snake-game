@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.scene.media.AudioClip;
 import org.slf4j.Logger;
@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.Optional;
 
-import static com.nata.games.snake.GameParameters.Resources.BITE_SOUND_CLIP;
-import static com.nata.games.snake.GameParameters.Resources.GAME_OVER_SOUND_CLIP;
 import static java.util.Objects.isNull;
 
 /**
@@ -29,13 +27,13 @@ public class SoundPlayer implements SnakeGameUserInterface.View.StateChangeObser
 
     private void playSoundIfFoodCaughtOnLastMove(GameState gameState) {
         if (gameState.isFoodCaughtOnLastMove()) {
-            playSound(BITE_SOUND_CLIP);
+            playSound(GameParameters.Resources.BITE_SOUND_CLIP);
         }
     }
 
     private void playSoundIfGameOver(GameState gameState) {
         if (gameState.isGameOver()) {
-            playSound(GAME_OVER_SOUND_CLIP);
+            playSound(GameParameters.Resources.GAME_OVER_SOUND_CLIP);
         }
     }
 

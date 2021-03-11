@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.Optional;
 
-import static com.nata.games.snake.GameParameters.ICON_SIZE_PX;
+import static com.natay.games.snake.GameParameters.ICON_SIZE_PX;
 
 /**
  * @author natayeung

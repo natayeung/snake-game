@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
@@ -9,8 +9,8 @@ import java.time.Duration;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.nata.games.snake.Direction.RIGHT;
-import static com.nata.games.snake.GameParameters.*;
+import static com.natay.games.snake.Direction.RIGHT;
+import static com.natay.games.snake.GameParameters.*;
 import static org.apache.commons.collections4.MapUtils.isEmpty;
 
 /**

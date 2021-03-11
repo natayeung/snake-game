@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import javafx.scene.paint.Color;
 
@@ -40,7 +40,7 @@ public class GameParameters {
     }
 
     static class Resources {
-        static final String STYLESHEET = "/css/stylesheet.css";
+        static final String STYLESHEET = "/css/styles.css";
         static final String BITE_SOUND_CLIP = "/sound/bite.mp3";
         static final String GAME_OVER_SOUND_CLIP = "/sound/gameover.mp3";
         static final String SPEED_ICON = "/images/speed.png";

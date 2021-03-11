@@ -1,4 +1,4 @@
-package com.nata.games.snake;
+package com.natay.games.snake;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.nata.games.snake.GameParameters.*;
 import static java.util.Objects.isNull;
 
 /**
@@ -62,7 +61,7 @@ public class GameMoveScheduler implements GameMoveSchedulable {
             return;
 
         if (isNextScoreMilestoneReached(score) && isMoveIntervalGreaterThanMinimum()) {
-            moveInterval = moveInterval.minus(MOVE_INTERVAL_DECREMENT);
+            moveInterval = moveInterval.minus(GameParameters.MOVE_INTERVAL_DECREMENT);
             lastScoreMilestone = score;
             logger.info("Updated move interval={}ms, last score milestone={}", moveInterval.toMillis(), lastScoreMilestone);
 
@@ -77,12 +76,12 @@ public class GameMoveScheduler implements GameMoveSchedulable {
 
     private boolean isNextScoreMilestoneReached(int score) {
         boolean isScoreChangedSinceLastMilestone = score != lastScoreMilestone;
-        boolean isMilestoneReached = score % SCORE_MILESTONE_FOR_SPEED_CHANGE == 0;
+        boolean isMilestoneReached = score % GameParameters.SCORE_MILESTONE_FOR_SPEED_CHANGE == 0;
         return isScoreChangedSinceLastMilestone && isMilestoneReached;
     }
 
     private boolean isMoveIntervalGreaterThanMinimum() {
-        return moveInterval.compareTo(MIN_MOVE_INTERVAL) > 0;
+        return moveInterval.compareTo(GameParameters.MIN_MOVE_INTERVAL) > 0;
     }
 
     private void restart() {
