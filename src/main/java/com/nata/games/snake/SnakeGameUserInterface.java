@@ -1,5 +1,6 @@
 package com.nata.games.snake;
 
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 
 /**
@@ -19,6 +20,10 @@ public interface SnakeGameUserInterface {
         void initializeGameBoard(GameState gameState);
 
         void updateGameBoard(GameState gameState);
+
+        interface ComponentInitializer {
+            Node initialize();
+        }
 
         interface StateChangeObserver {
             void stateChanged(GameState gameState);

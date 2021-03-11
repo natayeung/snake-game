@@ -1,25 +1,38 @@
 package com.nata.games.snake;
 
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Rectangle;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.nata.games.snake.GameParameters.*;
 import static java.util.Objects.isNull;
 
 /**
  * @author natayeung
  */
-public class TilesGridUpdater implements SnakeGameUserInterface.View.StateChangeObserver {
+public class TilesGridUpdater implements SnakeGameUserInterface.View.ComponentInitializer, SnakeGameUserInterface.View.StateChangeObserver {
 
-    private final Map<Point2D, Rectangle> tilesByCoordinates;
+    private final Map<Point2D, Rectangle> tilesByCoordinates = new HashMap<>(TOTAL_TILES_X * TOTAL_TILES_Y);
 
-    public TilesGridUpdater(Map<Point2D, Rectangle> tilesByCoordinates) {
-        this.tilesByCoordinates = checkNotNull(tilesByCoordinates, "Tiles by coordinates map must be specified");
+    public TilesGridUpdater() {
+    }
+
+    @Override
+    public Node initialize() {
+        final GridPane tilesGrid = new GridPane();
+        for (int i = 0; i < TOTAL_TILES_X; i++) {
+            for (int j = 0; j < TOTAL_TILES_Y; j++) {
+                final Rectangle tile = newTile(i, j);
+                tilesGrid.add(tile, i, j);
+            }
+        }
+        return tilesGrid;
     }
 
     @Override
@@ -28,6 +41,13 @@ public class TilesGridUpdater implements SnakeGameUserInterface.View.StateChange
             return;
 
         updateTilesGrid(gameState);
+    }
+
+    private Rectangle newTile(int x, int y) {
+        final Rectangle tile = new Rectangle(x, y, TILE_SIZE_PX, TILE_SIZE_PX);
+        tile.setFill(EMPTY_COLOR);
+        tilesByCoordinates.put(new Point2D(x, y), tile);
+        return tile;
     }
 
     private void updateTilesGrid(GameState gameState) {

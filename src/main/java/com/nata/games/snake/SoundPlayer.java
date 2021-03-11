@@ -40,7 +40,7 @@ public class SoundPlayer implements SnakeGameUserInterface.View.StateChangeObser
     }
 
     private void playSound(String resourceName) {
-        Optional<URL> resource = Optional.ofNullable(getClass().getResource(resourceName));
+        final Optional<URL> resource = Optional.ofNullable(getClass().getResource(resourceName));
         if (resource.isPresent()) {
             final AudioClip sound = new AudioClip(resource.get().toString());
             sound.play();

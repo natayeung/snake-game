@@ -12,8 +12,9 @@ public class GameParameters {
     static final int TOTAL_TILES_X = 30;
     static final int TOTAL_TILES_Y = 30;
     static final int TILE_SIZE_PX = 16;
+    static final int ICON_SIZE_PX = 24;
 
-    static final int WINDOW_HEIGHT = 570;
+    static final int WINDOW_HEIGHT = 624;
     static final int WINDOW_WIDTH = 510;
 
     static final Color EMPTY_COLOR = Color.FLORALWHITE;
@@ -26,10 +27,13 @@ public class GameParameters {
     static final int SCORE_MILESTONE_FOR_SPEED_CHANGE = 5;
 
     static class DisplayText {
-        static final String GAME_OVER_MESSAGE = "Game Over!";
-        static final String NEW_GAME = "New Game";
-        static final String EXIT = "Exit";
-        static final String SCORE = "Score: ";
+        static final String GAME_OVER_MESSAGE = "GAME OVER";
+        static final String RETRY = "Retry";
+        static final String QUIT = "Quit";
+        static final String SCORE = "Score:";
+        static final String SPEED = "Speed:";
+        static final String TITLE = "Snake";
+        static final String CLOSE = "X";
 
         private DisplayText() {
         }
@@ -39,7 +43,10 @@ public class GameParameters {
         static final String STYLESHEET = "/css/stylesheet.css";
         static final String BITE_SOUND_CLIP = "/sound/bite.mp3";
         static final String GAME_OVER_SOUND_CLIP = "/sound/gameover.mp3";
-        static final String SPEED_IMAGE = "/images/speed.png";
+        static final String SPEED_ICON = "/images/speed.png";
+        static final String SNAKE_ICON = "/images/snake.png";
+        static final String CLOSE_BUTTON_ICON = "/images/close_button.png";
+        static final String APPLE_ICON = "/images/apple.png";
     }
 
     private GameParameters() {

@@ -8,11 +8,8 @@
 }
 
 .text {
+    -fx-padding: 0;
     -fx-text-fill: darkslategray;
-}
-
-.button {
-    -fx-pref-width: 100px;
 }
 
 .label {
@@ -25,12 +22,63 @@
     -fx-accent: gold;
 }
 
+.header-pane {
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    -fx-pref-height: 24px;
+}
+
 .score-pane {
+    -fx-padding: 0 2 0 2;
+    -fx-spacing: 5px;
     -fx-alignment: center-right;
-    -fx-pref-height: 30px;
+    -fx-pref-height: 24px;
 }
 
 .speed-indicator-pane {
     -fx-alignment: center;
     -fx-pref-height: 24px;
 }
+
+.close-button {
+    -fx-min-width: 24px;
+    -fx-max-width: 24px;
+    -fx-pref-width: 24px;
+    -fx-min-height: 24px;
+    -fx-max-height: 24px;
+    -fx-pref-height: 24px;
+    -fx-background-color: springgreen;
+}
+
+.dialog-pane {
+    -fx-max-width: 300px;
+    -fx-font-family: "Verdana";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-color: peru;
+    -fx-border-color: gold;
+    -fx-border-width: 2px;
+    -fx-text-fill: darkslategray;
+    -fx-alignment: center;
+}
+
+.dialog-pane .button {
+    -fx-pref-width: 100px;
+    -fx-background-color: peru;
+    -fx-border-color: gold;
+    -fx-border-width: 2px;
+    -fx-font-weight: bold;
+    -fx-text-fill: gold;
+    -fx-wrap-text: true;
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: gold;
+    -fx-text-fill: peru;
+    -fx-font-weight: bold;
+}
+
+
+
+
