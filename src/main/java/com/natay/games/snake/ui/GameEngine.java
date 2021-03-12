@@ -1,5 +1,12 @@
-package com.natay.games.snake;
+package com.natay.games.snake.ui;
 
+import com.natay.games.snake.dto.GameState;
+import com.natay.games.snake.model.Direction;
+import com.natay.games.snake.model.Food;
+import com.natay.games.snake.model.Snake;
+import com.natay.games.snake.service.FoodProducer;
+import com.natay.games.snake.service.GameMoveSchedulable;
+import com.natay.games.snake.service.SnakeMoveExecutable;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import org.slf4j.Logger;
@@ -9,19 +16,19 @@ import java.time.Duration;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.natay.games.snake.Direction.RIGHT;
 import static com.natay.games.snake.GameParameters.*;
+import static com.natay.games.snake.model.Direction.RIGHT;
 import static org.apache.commons.collections4.MapUtils.isEmpty;
 
 /**
  * @author natayeung
  */
-public class GameEngine implements SnakeGameUserInterface.Presenter, SnakeMoveExecutable {
+public class GameEngine implements GamePresenter, SnakeMoveExecutable {
 
     private static final Logger logger = LoggerFactory.getLogger(GameEngine.class);
     private static final Direction DEFAULT_MOVING_DIRECTION = RIGHT;
 
-    private final SnakeGameUserInterface.View gameView;
+    private final GameView gameView;
     private final FoodProducer foodProducer;
     private final Map<KeyCode, Direction> directionsByInputKey;
     private final GameMoveSchedulable gameMoveScheduler;
@@ -33,7 +40,7 @@ public class GameEngine implements SnakeGameUserInterface.Presenter, SnakeMoveEx
     private boolean gameOver;
     private Direction movingDirection;
 
-    public GameEngine(SnakeGameUserInterface.View gameView,
+    public GameEngine(GameView gameView,
                       FoodProducer foodProducer,
                       GameMoveSchedulable gameMoveScheduler,
                       Map<KeyCode, Direction> inputKeyDirectionMapping) {

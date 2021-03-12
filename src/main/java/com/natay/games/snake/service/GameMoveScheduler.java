@@ -1,5 +1,6 @@
-package com.natay.games.snake;
+package com.natay.games.snake.service;
 
+import com.natay.games.snake.GameParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

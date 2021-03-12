@@ -1,5 +1,6 @@
-package com.natay.games.snake;
+package com.natay.games.snake.ui;
 
+import com.natay.games.snake.GameParameters;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -7,19 +8,25 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author natayeung
  */
-public class HeaderRenderer implements SnakeGameUserInterface.View.ComponentInitializer {
+class HeaderRenderer implements NodeInitializer {
+
+    private static final Logger logger = LoggerFactory.getLogger(HeaderRenderer.class);
+
+    HeaderRenderer() {
+    }
 
     @Override
     public Node initialize() {
         final HBox headerPane = UIUtils.newHorizontalPaneWithStyle("header-pane");
-        final Label snakeLabel = newSnakeLabel();
-        final Button closeButton = newCloseButton();
-        final Region filler = newFiller();
-        headerPane.getChildren().addAll(snakeLabel, filler, closeButton);
+        headerPane.getChildren().addAll(newSnakeLabel(), newFiller(), newCloseButton());
+
+        logger.info("Header pane initialized");
 
         return headerPane;
     }

@@ -1,5 +1,7 @@
-package com.natay.games.snake;
+package com.natay.games.snake.service;
 
+import com.natay.games.snake.model.Food;
+import com.natay.games.snake.service.FoodProducer;
 import javafx.geometry.Point2D;
 
 import java.util.Collection;
@@ -11,13 +13,13 @@ import static java.util.Objects.isNull;
 /**
  * @author natayeung
  */
-class RandomFoodProducer implements FoodProducer {
+public class RandomFoodProducer implements FoodProducer {
 
     private final Random random = new Random(System.currentTimeMillis());
     private final int xBound;
     private final int yBound;
 
-    RandomFoodProducer(int xBound, int yBound) {
+    public RandomFoodProducer(int xBound, int yBound) {
         checkArgument(xBound > 0, "xBound must be positive");
         checkArgument(yBound > 0, "yBound must be positive");
 

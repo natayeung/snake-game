@@ -1,5 +1,6 @@
-package com.natay.games.snake;
+package com.natay.games.snake.ui;
 
+import com.natay.games.snake.dto.GameState;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,21 +24,21 @@ import static javafx.stage.StageStyle.UNDECORATED;
 
 /**
  * @author natayeung
- * <p>
+ *
  * Credits:
  * - Sound effects from zapsplat
  * - Apple icon made by <a href="https://smashicons.com/" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
  * - Close button icon made by <a href="http://catalinfertu.com" title="Catalin Fertu">Catalin Fertu</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
  * - Snake and speed icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
  */
-public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyEvent>, SnakeGameUserInterface.GameRestartable {
+public class GameBoard implements GameView, EventHandler<KeyEvent>, GameRestartable {
 
     private static final Logger logger = LoggerFactory.getLogger(GameBoard.class);
 
     private final Stage stage;
     private final List<StateChangeObserver> stateChangeObservers = new ArrayList<>();
-    private final List<ComponentInitializer> componentInitializers = new ArrayList<>();
-    private SnakeGameUserInterface.Presenter presenter;
+    private final List<NodeInitializer> nodeInitializers = new ArrayList<>();
+    private GamePresenter presenter;
 
     public GameBoard(Stage stage) {
         this.stage = stage;
@@ -49,13 +50,13 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         final SoundPlayer soundPlayer = new SoundPlayer();
         final GameOverNotifier gameOverNotifier = new GameOverNotifier(this);
 
-        addComponentInitializers(headerRenderer, scoreUpdater, tilesGridUpdater, speedIndicationUpdater);
+        addNodeInitializers(headerRenderer, scoreUpdater, tilesGridUpdater, speedIndicationUpdater);
         addStateChangeObservers(tilesGridUpdater, scoreUpdater, speedIndicationUpdater, soundPlayer, gameOverNotifier);
         initializeUI();
     }
 
     @Override
-    public void setPresenter(SnakeGameUserInterface.Presenter presenter) {
+    public void setPresenter(GamePresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -95,7 +96,7 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         stage.setScene(newSceneWith(basePane));
         stage.initStyle(UNDECORATED);
 
-        for (ComponentInitializer initializer : componentInitializers) {
+        for (NodeInitializer initializer : nodeInitializers) {
             basePane.getChildren().add(initializer.initialize());
         }
 
@@ -109,8 +110,8 @@ public class GameBoard implements SnakeGameUserInterface.View, EventHandler<KeyE
         return scene;
     }
 
-    private void addComponentInitializers(ComponentInitializer... initializers) {
-        this.componentInitializers.addAll(Arrays.asList(initializers));
+    private void addNodeInitializers(NodeInitializer... initializers) {
+        this.nodeInitializers.addAll(Arrays.asList(initializers));
     }
 
     private void addStateChangeObservers(StateChangeObserver... observers) {

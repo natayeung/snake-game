@@ -1,4 +1,4 @@
-package com.natay.games.snake;
+package com.natay.games.snake.service;
 
 import java.time.Duration;
 import java.util.Optional;

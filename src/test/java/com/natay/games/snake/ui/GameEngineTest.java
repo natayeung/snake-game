@@ -1,5 +1,12 @@
-package com.natay.games.snake;
+package com.natay.games.snake.ui;
 
+import com.natay.games.snake.GameParameters;
+import com.natay.games.snake.dto.GameState;
+import com.natay.games.snake.model.Direction;
+import com.natay.games.snake.model.Food;
+import com.natay.games.snake.model.Snake;
+import com.natay.games.snake.service.FoodProducer;
+import com.natay.games.snake.service.GameMoveSchedulable;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import junitparams.JUnitParamsRunner;
@@ -19,11 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.natay.games.snake.Direction.RIGHT;
+import static com.natay.games.snake.model.Direction.RIGHT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -41,7 +47,7 @@ public class GameEngineTest {
     private final Point2D foodPosition = new Point2D(0, 9);
 
     @Mock
-    private SnakeGameUserInterface.View gameViewMock;
+    private GameView gameViewMock;
     @Mock
     private FoodProducer foodProducerMock;
     @Mock

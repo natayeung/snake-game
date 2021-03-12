@@ -1,4 +1,4 @@
-package com.natay.games.snake;
+package com.natay.games.snake.ui;
 
 import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;
@@ -15,17 +15,17 @@ import static com.natay.games.snake.GameParameters.ICON_SIZE_PX;
 /**
  * @author natayeung
  */
-public class UIUtils {
+class UIUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(UIUtils.class);
 
-    public static HBox newHorizontalPaneWithStyle(String styleClass) {
+    static HBox newHorizontalPaneWithStyle(String styleClass) {
         final HBox pane = new HBox();
         pane.getStyleClass().add(styleClass);
         return pane;
     }
 
-    public static void setIconIfFoundOrElseSetText(Labeled control, String iconResourceName, String text) {
+    static void setIconIfFoundOrElseSetText(Labeled control, String iconResourceName, String text) {
         final Optional<Image> icon = loadImage(iconResourceName, ICON_SIZE_PX, ICON_SIZE_PX);
         if (icon.isPresent()) {
             control.setGraphic(new ImageView(icon.get()));
@@ -34,7 +34,7 @@ public class UIUtils {
         }
     }
 
-    public static Optional<Image> loadImage(String resourceName, int width, int height) {
+    static Optional<Image> loadImage(String resourceName, int width, int height) {
         final Optional<URL> resource = Optional.ofNullable(UIUtils.class.getResource(resourceName));
         if (resource.isPresent()) {
             final Image image = new Image(resource.get().toString(), width, height, true, true, true);

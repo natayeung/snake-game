@@ -1,9 +1,13 @@
-package com.natay.games.snake;
+package com.natay.games.snake.ui;
 
+import com.natay.games.snake.GameParameters;
+import com.natay.games.snake.dto.GameState;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Rectangle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,11 +19,13 @@ import static java.util.Objects.isNull;
 /**
  * @author natayeung
  */
-public class TilesGridUpdater implements SnakeGameUserInterface.View.ComponentInitializer, SnakeGameUserInterface.View.StateChangeObserver {
+class TilesGridUpdater implements NodeInitializer, StateChangeObserver {
+
+    private static final Logger logger = LoggerFactory.getLogger(TilesGridUpdater.class);
 
     private final Map<Point2D, Rectangle> tilesByCoordinates = new HashMap<>(GameParameters.TOTAL_TILES_X * GameParameters.TOTAL_TILES_Y);
 
-    public TilesGridUpdater() {
+    TilesGridUpdater() {
     }
 
     @Override
@@ -31,6 +37,8 @@ public class TilesGridUpdater implements SnakeGameUserInterface.View.ComponentIn
                 tilesGrid.add(tile, i, j);
             }
         }
+        logger.info("Tiles grid pane initialized");
+
         return tilesGrid;
     }
 

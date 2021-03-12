@@ -1,5 +1,7 @@
-package com.natay.games.snake;
+package com.natay.games.snake.ui;
 
+import com.natay.games.snake.GameParameters;
+import com.natay.games.snake.dto.GameState;
 import javafx.scene.media.AudioClip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,7 @@ import static java.util.Objects.isNull;
 /**
  * @author natayeung
  */
-public class SoundPlayer implements SnakeGameUserInterface.View.StateChangeObserver {
+class SoundPlayer implements StateChangeObserver {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
 

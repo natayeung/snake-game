@@ -1,5 +1,7 @@
-package com.natay.games.snake;
+package com.natay.games.snake.model;
 
+import com.natay.games.snake.model.Direction;
+import com.natay.games.snake.model.Food;
 import javafx.geometry.Point2D;
 
 import java.util.Collection;

@@ -1,5 +1,6 @@
-package com.natay.games.snake;
+package com.natay.games.snake.service;
 
+import com.natay.games.snake.model.Food;
 import javafx.geometry.Point2D;
 import org.junit.Before;
 import org.junit.Test;

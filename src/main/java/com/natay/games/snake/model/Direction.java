@@ -1,4 +1,4 @@
-package com.natay.games.snake;
+package com.natay.games.snake.model;
 
 import javafx.geometry.Point2D;
 
