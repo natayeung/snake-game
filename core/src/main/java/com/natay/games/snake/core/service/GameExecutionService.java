@@ -36,10 +36,14 @@ public class GameExecutionService implements GameExecutor, Runnable {
         this.executionContext = requireNonNull(executionContext, "Execution context must be specified");
 
         initialize();
+
+        logger.debug("Initialized with {}", executionContext);
     }
 
     @Override
     public GameState startGame() {
+        logger.info("Starting game ...");
+
         final GameState initialGameState = getGameState();
         gameMoveScheduler.start(this, executionContext.schedulingContext());
 
@@ -48,6 +52,8 @@ public class GameExecutionService implements GameExecutor, Runnable {
 
     @Override
     public GameState restartGame() {
+        logger.info("Restarting game ...");
+
         initialize();
         final GameState initialGameState = getGameState();
 
@@ -100,14 +106,11 @@ public class GameExecutionService implements GameExecutor, Runnable {
     }
 
     private Food newFoodNotInCollisionWith(Snake snake) {
-        final Food food = foodProducer.nextFoodExcludingPositions(snake.getBody());
-        logger.debug("Produced food {}", food);
-
-        return food;
+       return foodProducer.nextFoodExcludingPositions(snake.getBody());
     }
 
     private GameState getGameState() {
-        final GameState gameState = GameState.newBuilder()
+        return GameState.newBuilder()
                 .withSnake(snake.getBody())
                 .withFood(food.getPosition())
                 .withScore(score)
@@ -115,10 +118,6 @@ public class GameExecutionService implements GameExecutor, Runnable {
                 .isGameOver(gameOver)
                 .withSpeedIndication(computeSpeedIndication())
                 .build();
-
-        logger.debug("Game state={}", gameState);
-
-        return gameState;
     }
 
     private double computeSpeedIndication() {

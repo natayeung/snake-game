@@ -63,7 +63,8 @@ public class GameMoveSchedulingService implements GameMoveScheduler {
         if (isNextScoreMilestoneReached(score) && isMoveIntervalGreaterThanMinimum()) {
             moveInterval = moveInterval.minus(schedulingContext.moveIntervalDecrement());
             lastScoreMilestone = score;
-            logger.info("Updated move interval={}ms, last score milestone={}", moveInterval.toMillis(), lastScoreMilestone);
+
+            logger.debug("Updated move interval={}ms, last score milestone={}", moveInterval.toMillis(), lastScoreMilestone);
 
             restart(gameMove, moveInterval);
         }
@@ -78,7 +79,7 @@ public class GameMoveSchedulingService implements GameMoveScheduler {
         future = scheduler.scheduleWithFixedDelay(gameMove,
                 0, moveInterval.toMillis(), TimeUnit.MILLISECONDS);
 
-        logger.info("Started scheduling game moves, move interval={}ms", moveInterval.toMillis());
+        logger.info("Scheduling game moves at interval={}ms", moveInterval.toMillis());
     }
 
     private boolean isNextScoreMilestoneReached(int score) {

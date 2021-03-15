@@ -3,6 +3,8 @@ package com.natay.games.snake.core.service;
 
 import com.natay.games.snake.core.model.Food;
 import javafx.geometry.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Random;
@@ -14,6 +16,8 @@ import static java.util.Objects.nonNull;
  * @author natayeung
  */
 public class RandomFoodProducer implements FoodProducer {
+
+    private static final Logger logger = LoggerFactory.getLogger(RandomFoodProducer.class);
 
     private final Random random = new Random(System.currentTimeMillis());
     private final int xBound;
@@ -32,6 +36,10 @@ public class RandomFoodProducer implements FoodProducer {
         final int y = random.nextInt(yBound);
         final Point2D position = new Point2D(x, y);
 
-        return nonNull(excludingPositions) && excludingPositions.contains(position) ? nextFoodExcludingPositions(excludingPositions) : new Food(position);
+        final Food food = nonNull(excludingPositions) && excludingPositions.contains(position)
+                ? nextFoodExcludingPositions(excludingPositions) : new Food(position);
+        logger.debug("Produced {}", food);
+
+        return food;
     }
 }

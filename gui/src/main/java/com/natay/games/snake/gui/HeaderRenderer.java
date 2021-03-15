@@ -28,7 +28,7 @@ class HeaderRenderer implements NodeInitializer {
         final HBox headerPane = UIUtils.newHorizontalPaneWithStyle("header-pane");
         headerPane.getChildren().addAll(newSnakeLabel(), newFiller(), newCloseButton());
 
-        logger.info("Header pane initialized");
+        logger.info("Header initialized");
 
         return headerPane;
     }

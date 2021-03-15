@@ -33,7 +33,7 @@ class ScoreUpdater implements NodeInitializer, StateChangeObserver {
         UIUtils.setIconIfFoundOrElseSetText(scoreLabel, ResourceNames.APPLE_ICON, DisplayText.SCORE);
         scorePane.getChildren().addAll(scoreLabel, scoreValue);
 
-        logger.info("Score pane initialized");
+        logger.info("Score initialized");
 
         return scorePane;
     }
@@ -47,6 +47,8 @@ class ScoreUpdater implements NodeInitializer, StateChangeObserver {
         if (score != lastScore) {
             scoreValue.setText(String.valueOf(score));
             lastScore = score;
+
+            logger.debug("Updated score={}", score);
         }
     }
 }

@@ -63,7 +63,7 @@ class GameBoard implements GameView, EventHandler<KeyEvent>, GameRestartable {
 
     @Override
     public void initializeGameBoard(GameState gameState) {
-        logger.info("Initializing game board, {}", gameState);
+        logger.debug("Initializing game board, {}", gameState);
 
         refreshBoard(gameState);
     }

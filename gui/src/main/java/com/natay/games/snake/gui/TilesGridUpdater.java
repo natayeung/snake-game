@@ -38,7 +38,7 @@ class TilesGridUpdater implements NodeInitializer, StateChangeObserver {
                 tilesGrid.add(tile, i, j);
             }
         }
-        logger.info("Tiles grid pane initialized");
+        logger.info("Tiles grid initialized");
 
         return tilesGrid;
     }

@@ -45,6 +45,7 @@ class SoundPlayer implements StateChangeObserver {
         if (resource.isPresent()) {
             final AudioClip sound = new AudioClip(resource.get().toString());
             sound.play();
+            logger.debug("Played sound clip {}", resourceName);
         } else {
             logger.warn("Cannot play sound, clip {} not found", resourceName);
         }

@@ -32,7 +32,7 @@ class SpeedIndicationUpdater implements NodeInitializer, StateChangeObserver {
         UIUtils.setIconIfFoundOrElseSetText(speedLabel, ResourceNames.SPEED_ICON, DisplayText.SPEED);
         speedPane.getChildren().addAll(speedLabel, speedIndicator);
 
-        logger.info("Speed indicator pane initialized");
+        logger.info("Speed indicator initialized");
 
         return speedPane;
     }
@@ -46,6 +46,8 @@ class SpeedIndicationUpdater implements NodeInitializer, StateChangeObserver {
         if (speedIndication != lastIndication) {
             speedIndicator.setProgress(speedIndication);
             lastIndication = speedIndication;
+
+            logger.debug("Updated speed indication={}", speedIndication);
         }
     }
 }

@@ -41,6 +41,16 @@ public class SchedulingContext {
         return scoreMilestoneForIntervalChange;
     }
 
+    @Override
+    public String toString() {
+        return "SchedulingContext{" +
+                "initialMoveInterval=" + initialMoveInterval +
+                ", minMoveInterval=" + minMoveInterval +
+                ", moveIntervalDecrement=" + moveIntervalDecrement +
+                ", scoreMilestoneForIntervalChange=" + scoreMilestoneForIntervalChange +
+                '}';
+    }
+
     public static final class Builder {
         private Duration initialMoveInterval;
         private Duration minMoveInterval;
