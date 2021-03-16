@@ -3,8 +3,8 @@ package com.natay.games.snake.core.service;
 
 import com.natay.games.snake.core.model.Food;
 import javafx.geometry.Point2D;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +20,7 @@ public class RandomFoodProducerTest {
 
     private RandomFoodProducer foodProducer;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         foodProducer = new RandomFoodProducer(2, 2);
     }

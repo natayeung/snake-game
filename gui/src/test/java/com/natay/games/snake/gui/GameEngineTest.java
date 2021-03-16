@@ -5,11 +5,10 @@ import com.natay.games.snake.core.service.GameExecutor;
 import com.natay.games.snake.core.service.GameState;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -27,7 +26,6 @@ import static org.mockito.MockitoAnnotations.openMocks;
 /**
  * @author natayeung
  */
-@RunWith(JUnitParamsRunner.class)
 public class GameEngineTest {
 
     private final GameState initialGameState = aGameState();
@@ -41,7 +39,7 @@ public class GameEngineTest {
 
     private GameEngine gameEngine;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         openMocks(this);
 
@@ -62,12 +60,12 @@ public class GameEngineTest {
         assertThat(captured, is(initialGameState));
     }
 
-    @Test
-    @Parameters({
-            "UP   |UP",
-            "DOWN |DOWN",
-            "LEFT |LEFT",
-            "RIGHT|RIGHT"
+    @ParameterizedTest
+    @CsvSource({
+            "UP   ,UP",
+            "DOWN ,DOWN",
+            "LEFT ,LEFT",
+            "RIGHT,RIGHT"
     })
     public void shouldRequestToChangeMovingDirectionOfSnakeWhenInputKeyIsRecognised(KeyCode inputKey, Direction direction) {
         gameEngine.onMovingDirectionUpdate(inputKey);

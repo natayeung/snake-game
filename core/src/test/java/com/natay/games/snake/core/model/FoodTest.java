@@ -1,19 +1,23 @@
 package com.natay.games.snake.core.model;
 
 import javafx.geometry.Point2D;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author natayeung
  */
 public class FoodTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void cannotBeInstantiatedWithNullPosition() {
-        new Food(null);
+        assertThrows(NullPointerException.class, () -> {
+            new Food(null);
+        });
     }
 
     @Test

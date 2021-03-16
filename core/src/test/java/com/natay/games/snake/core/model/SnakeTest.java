@@ -2,42 +2,40 @@ package com.natay.games.snake.core.model;
 
 import com.natay.games.snake.core.common.Direction;
 import javafx.geometry.Point2D;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static com.natay.games.snake.core.common.Direction.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author natayeung
  */
-@RunWith(JUnitParamsRunner.class)
 public class SnakeTest {
 
     private final Point2D startingHead = new Point2D(3, 7);
     private Snake snake;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         snake = new Snake(startingHead, RIGHT);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void cannotBeInstantiatedWithNullHead() {
-        new Snake(null, RIGHT);
+        assertThrows(NullPointerException.class,
+                () -> new Snake(null, RIGHT));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void cannotBeInstantiatedWithNullMovingDirection() {
-        new Snake(startingHead, null);
+        assertThrows(NullPointerException.class,
+                () -> new Snake(startingHead, null));
     }
 
     @Test
@@ -61,12 +59,12 @@ public class SnakeTest {
         assertThat(movingDirection, is(RIGHT));
     }
 
-    @Test
-    @Parameters({
-            "UP   |3|6",
-            "DOWN |3|8",
-            "LEFT |2|7",
-            "RIGHT|4|7",
+    @ParameterizedTest
+    @CsvSource({
+            "UP   ,3,6",
+            "DOWN ,3,8",
+            "LEFT ,2,7",
+            "RIGHT,4,7"
     })
     public void canMoveInSpecifiedDirection(Direction direction, int expectedHeadX, int expectedHeadY) {
         Point2D expectedHead = new Point2D(expectedHeadX, expectedHeadY);
@@ -82,14 +80,14 @@ public class SnakeTest {
     public void collidesWithFood() {
         Food food = new Food(startingHead);
 
-        assertTrue("Snake is colliding with food", snake.isCollidingWith(food));
+        assertTrue(snake.isCollidingWith(food), "Snake is colliding with food");
     }
 
     @Test
     public void doesNotCollideWithFood() {
         Food food = new Food(startingHead.add(new Point2D(1, 0)));
 
-        assertFalse("Snake is not colliding with food", snake.isCollidingWith(food));
+        assertFalse(snake.isCollidingWith(food), "Snake is not colliding with food");
     }
 
     @Test
@@ -103,7 +101,7 @@ public class SnakeTest {
         snake.changeMovingDirection(DOWN);
         snake.move();
 
-        assertTrue("Snake is colliding with body", snake.isCollidingWithBody());
+        assertTrue(snake.isCollidingWithBody(), "Snake is colliding with body");
     }
 
     @Test
@@ -113,25 +111,25 @@ public class SnakeTest {
         snake.changeMovingDirection(UP);
         snake.move();
 
-        assertFalse("Snake is not colliding with body", snake.isCollidingWithBody());
+        assertFalse(snake.isCollidingWithBody(), "Snake is not colliding with body");
     }
 
-    @Test
-    @Parameters({
-            "3|8",
-            "4|7",
+    @ParameterizedTest
+    @CsvSource({
+            "3,8",
+            "4,7",
     })
     public void collidesWithEdgeOfBoard(int boundX, int boundY) {
-        assertTrue("Snake is colliding with edge of board", snake.isCollidingWithEdgeOfBoard(boundX, boundY));
+        assertTrue(snake.isCollidingWithEdgeOfBoard(boundX, boundY), "Snake is colliding with edge of board");
     }
 
-    @Test
-    @Parameters({
-            "4|8",
-            "9|9"
+    @ParameterizedTest
+    @CsvSource({
+            "4,8",
+            "9,9"
     })
     public void doesNotCollideWithEdgeOfBoard(int boundX, int boundY) {
-        assertFalse("Snake is not colliding with edge of board", snake.isCollidingWithEdgeOfBoard(boundX, boundY));
+        assertFalse(snake.isCollidingWithEdgeOfBoard(boundX, boundY), "Snake is not colliding with edge of board");
     }
 
     @Test

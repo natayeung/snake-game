@@ -4,9 +4,9 @@ import com.natay.games.snake.core.common.Direction;
 import com.natay.games.snake.core.model.Food;
 import javafx.geometry.Point2D;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
@@ -20,7 +20,7 @@ import static com.natay.games.snake.core.service.TestHelper.newExecutionContext;
 import static com.natay.games.snake.core.service.TestHelper.someExecutionContext;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.openMocks;
@@ -44,7 +44,7 @@ public class GameExecutionServiceTest {
     private ExecutionContext executionContext;
     private GameExecutionService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         openMocks(this);
 

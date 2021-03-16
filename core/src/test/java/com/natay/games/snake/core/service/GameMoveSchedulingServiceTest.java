@@ -1,7 +1,7 @@
 package com.natay.games.snake.core.service;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.time.Duration;
@@ -32,7 +32,7 @@ public class GameMoveSchedulingServiceTest {
     private SchedulingContext schedulingContext;
     private GameMoveSchedulingService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         openMocks(this);
 

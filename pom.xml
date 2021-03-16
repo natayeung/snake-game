@@ -20,11 +20,9 @@
         <slf4j.version>2.0.0-alpha1</slf4j.version>
         <logback.version>1.3.0-alpha4</logback.version>
         <junit.version>5.7.1</junit.version>
-        <junitparams.version>1.1.0</junitparams.version>
         <hamcrest.version>2.2</hamcrest.version>
         <mockito.version>3.8.0</mockito.version>
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
-        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
     </properties>
 
     <dependencies>
@@ -55,20 +53,14 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>pl.pragmatists</groupId>
-            <artifactId>JUnitParams</artifactId>
-            <version>${junitparams.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -104,7 +96,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
+                <version>3.0.0-M5</version>
+                <configuration>
+                    <forkCount>0</forkCount> <!-- Added as a workaround to Mockito issue #1925 -->
+                </configuration>
             </plugin>
         </plugins>
     </build>
