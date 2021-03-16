@@ -5,9 +5,9 @@ This is an implementation of the snake game using [JavaFX](https://openjfx.io).
 
 ## Rules of the Game
 * Use arrow keys to move the snake around the board.
-* Any attempt to move the snake in the opposite direction it is moving is ignored.
-* Food (apple) is generated at random positions. When the snake catches an apple, it grows longer. 1 point is also rewarded for each caught apple.
-* For every 5 apples caught, the snake moves a little faster.
+* Any attempt to move the snake in the opposite direction is ignored.
+* Food (apple) is generated at random positions. When the snake eats an apple, it grows longer. 1 point is also rewarded for each eaten apple.
+* For every 5 apples eaten, the snake moves a little faster.
 * There is a limit on how fast it can move, which is reflected by the indicator at the bottom of the board. 
 * The game is over when the snake either runs off the board or runs into itself.
 
