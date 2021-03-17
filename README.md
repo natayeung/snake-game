@@ -1,7 +1,6 @@
 # Snake Game
 
-This is an implementation of the snake game using [JavaFX](https://openjfx.io).
-
+This is a simple desktop snake game written in Java and [JavaFX](https://openjfx.io). My very first JavaFX application :)
 
 ## Rules of the Game
 * Use arrow keys to move the snake around the board.
@@ -11,26 +10,35 @@ This is an implementation of the snake game using [JavaFX](https://openjfx.io).
 * There is a limit on how fast it can move, which is reflected by the indicator at the bottom of the board. 
 * The game is over when the snake either runs off the board or runs into itself.
 
-## Screenshots
+## Look and Feel
 #### Game in progress
-![Game In Progress](docs/images/game_in_progress.JPG)
+![Game In Progress](docs/images/game_in_progress.PNG)
 #### Game over
-![Game Over](docs/images/game_over.JPG)
+![Game Over](docs/images/game_over.PNG)
 
 ## Running the Application
-We can use [JavaFX Maven plugin](https://github.com/openjfx/javafx-maven-plugin) to create a runtime image of this application.
+#### Prerequisites
+* Java 15+
+* Maven 3.5.3+
 
-Once the project is downloaded onto your local system, go into the ```gui``` module and run the following on command line:
-````
-    mvn clean javafx:jlink
-````
-The runtime image can then be found in the ```target/snake/``` folder and the launcher is in ```target/snake/bin```.
+#### Run via Maven
+We can use [JavaFX Maven plugin](https://github.com/openjfx/javafx-maven-plugin) to run the application.
 
-Alternatively, we can compile and run the application using the plugin on command line:
-````
-    mvn clean javafx:run
-````
+Once the project is downloaded onto your local system, go to the `snake-game` directory and run the following on command line:
+```
+    mvn --projects core clean install
+    mvn --projects gui javafx:run
+```
 
+#### Create Runtime Image
+We can also use the JavaFX Maven plugin to create a custom runtime image.
+
+In the `snake-game` directory, run the following on command line:
+```
+    mvn --projects core clean install
+    mvn --projects gui javafx:jlink
+```
+The runtime image can then be found in the `gui/target/snake` directory and the launcher (named `snake.bat`, for example, on Windows) is in `gui/target/snake/bin`.
 
 ## Credits
 * Sound effects from [zapsplat](https://www.zapsplat.com)
